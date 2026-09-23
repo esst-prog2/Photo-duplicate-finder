@@ -44,8 +44,8 @@ def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path
     resized = FIXTURES / "base_resized.png"
     unrelated = FIXTURES / "unrelated.png"
     groups = [
-        DuplicateGroup(members=[base, resized], similarity_score="0", keep=resized),
-        DuplicateGroup(members=[base, unrelated], similarity_score="12", keep=base),
+        DuplicateGroup(members=[base, resized], similarity_score="Very Similar", keep=resized),
+        DuplicateGroup(members=[base, unrelated], similarity_score="Similar", keep=base),
     ]
     output_path = tmp_path / "duplicates.xlsx"
 
@@ -56,19 +56,19 @@ def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path
 
     assert rows == [
         ("File", "Similarity Score"),
-        ("base.png", "0"),
-        ("base_resized.png", "0"),
+        ("base.png", "Very Similar"),
+        ("base_resized.png", "Very Similar"),
         (None, None),
         ("File", "Similarity Score"),
-        ("base.png", "12"),
-        ("unrelated.png", "12"),
+        ("base.png", "Similar"),
+        ("unrelated.png", "Similar"),
     ]
 
 
 def test_write_report_highlights_the_keep_row(tmp_path):
     base = FIXTURES / "base.png"
     resized = FIXTURES / "base_resized.png"
-    groups = [DuplicateGroup(members=[base, resized], similarity_score="0", keep=resized)]
+    groups = [DuplicateGroup(members=[base, resized], similarity_score="Very Similar", keep=resized)]
     output_path = tmp_path / "duplicates.xlsx"
 
     write_report(groups, output_path)

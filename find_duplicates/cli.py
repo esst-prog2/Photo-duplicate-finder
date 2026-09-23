@@ -7,6 +7,7 @@ import click
 from find_duplicates.grouping import merge_duplicate_groups
 from find_duplicates.hashing import (
     DEFAULT_NEAR_DUPLICATE_THRESHOLD,
+    exact_hash,
     find_near_duplicate_pairs,
     group_by_exact_hash,
     hamming_distance,
@@ -16,13 +17,21 @@ from find_duplicates.report import DuplicateGroup, choose_keep, write_report
 from find_duplicates.scanner import ScanTargetError, scan_folder
 
 
-def _group_similarity_score(members: list[Path]) -> str:
+def _categorize_distance(distance: int, threshold: int) -> str:
+    return "Very Similar" if distance <= threshold // 2 else "Similar"
+
+
+def _group_similarity_score(members: list[Path], threshold: int) -> str:
+    exact_hashes = [exact_hash(member) for member in members]
+    if len(set(exact_hashes)) == 1:
+        return "Exact"
+
     hashes = [perceptual_hash(member) for member in members]
     max_distance = max(
         (hamming_distance(hashes[i], hashes[j]) for i, j in combinations(range(len(hashes)), 2)),
         default=0,
     )
-    return str(max_distance)
+    return _categorize_distance(max_distance, threshold)
 
 
 def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
@@ -45,7 +54,7 @@ def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
         duplicate_groups.append(
             DuplicateGroup(
                 members=members,
-                similarity_score=_group_similarity_score(members),
+                similarity_score=_group_similarity_score(members, threshold),
                 keep=choose_keep(members),
             )
         )
