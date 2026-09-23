@@ -13,6 +13,9 @@ dependencies = [
     "click>=8.1",
 ]
 
+[project.scripts]
+find-duplicates = "find_duplicates.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8",

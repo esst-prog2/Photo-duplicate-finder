@@ -39,28 +39,28 @@
 
 ## 5. Grouping and reporting (specs/duplicate-report)
 
-- [ ] 5.1 Implement `grouping.py` union-find merge of exact- and near-duplicate
+- [x] 5.1 Implement `grouping.py` union-find merge of exact- and near-duplicate
   matches into single groups; verify with a unit test that a transitive match
   (A=B exact, B≈C near) produces one group of three, not two groups
-- [ ] 5.2 Implement `report.py` keep-candidate selection (largest file size, tie
+- [x] 5.2 Implement `report.py` keep-candidate selection (largest file size, tie
   broken by resolution); verify with a unit test using fixtures of different sizes
-- [ ] 5.3 Implement CSV writer producing `duplicates.csv` (group members, similarity
+- [x] 5.3 Implement CSV writer producing `duplicates.csv` (group members, similarity
   score, keep suggestion), including the no-duplicates-found case (file still
   created, no group rows); verify with unit tests for both cases
 
 ## 6. CLI wiring
 
-- [ ] 6.1 Implement `cli.py` orchestrating scan → hash → group → report, printing
+- [x] 6.1 Implement `cli.py` orchestrating scan → hash → group → report, printing
   the one-line summary count; verify by running `find-duplicates tests/fixtures/`
   and checking the printed summary and generated `duplicates.csv` by hand
-- [ ] 6.2 Wire the console-script entry point in `pyproject.toml`; verify the
+- [x] 6.2 Wire the console-script entry point in `pyproject.toml`; verify the
   `find-duplicates` command is available after `pip install -e .`
 
 ## 7. End-to-end verification
 
-- [ ] 7.1 Run the full test suite (`pytest`) and confirm all tests pass, including
+- [x] 7.1 Run the full test suite (`pytest`) and confirm all tests pass, including
   the three explicit cases from README.md section 4: identical files grouped,
   unrelated files not grouped, resized copy grouped as near-duplicate
-- [ ] 7.2 Add and verify a test for an empty/no-matching-images folder: running the
+- [x] 7.2 Add and verify a test for an empty/no-matching-images folder: running the
   CLI against it exits without error, writes `duplicates.csv` with no group rows,
   and prints a summary of zero exact duplicates and zero near-duplicate groups
