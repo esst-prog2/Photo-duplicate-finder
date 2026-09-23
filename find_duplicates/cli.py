@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from itertools import combinations
 from pathlib import Path
 
@@ -32,6 +33,10 @@ def _group_similarity_score(members: list[Path], threshold: int) -> str:
         default=0,
     )
     return _categorize_distance(max_distance, threshold)
+
+
+def _report_filename(now: datetime) -> str:
+    return now.strftime("duplicates_%Y%m%d_%H%M.xlsx")
 
 
 def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
@@ -78,7 +83,13 @@ def main(folder: Path, threshold: int) -> None:
         click.echo(f"Error: {error}", err=True)
         sys.exit(1)
 
-    write_report(duplicate_groups, folder.parent / "duplicates.xlsx")
+    output_path = folder.parent / _report_filename(datetime.now())
+    if output_path.exists():
+        click.confirm(
+            f"{output_path} already exists. Overwrite it?",
+            abort=True,
+        )
+    write_report(duplicate_groups, output_path)
     click.echo(
         f"{exact_count} exact duplicates found, "
         f"{near_duplicate_group_count} near-duplicate groups found."
