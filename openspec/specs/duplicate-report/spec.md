@@ -2,7 +2,7 @@
 
 ## Purpose
 Turns the exact- and near-duplicate matches into a single, actionable report: one
-group per set of duplicates, a suggested file to keep, a CSV file, and a printed
+group per set of duplicates, a suggested file to keep, an Excel file, and a printed
 summary.
 
 ## Requirements
@@ -25,19 +25,24 @@ file with the largest file size or highest resolution in that group.
 - **THEN** the largest / highest-resolution file is marked "keep" and the rest are
   marked "duplicate"
 
-### Requirement: Write a CSV report
-The system SHALL write a `duplicates.csv` file next to the scanned folder with one
-row per duplicate group, listing the member filenames, a similarity score, and the
-suggested file to keep.
+### Requirement: Write an Excel report
+The system SHALL write a `duplicates.xlsx` file next to the scanned folder,
+containing one table per duplicate group on a single worksheet. Each table SHALL
+have a header row ("File", "Similarity Score") followed by one row per member file
+in that group, and consecutive tables SHALL be separated by exactly one blank row.
+Within each table, the row for the suggested "keep" file SHALL be visually
+highlighted (fill color) to distinguish it from the other rows.
 
 #### Scenario: Report written after a scan with duplicates
 - **WHEN** the scan finds at least one exact or near-duplicate group
-- **THEN** `duplicates.csv` is created next to the scanned folder with one row per
-  group
+- **THEN** `duplicates.xlsx` is created next to the scanned folder with one table
+  per group, each table's keep-file row highlighted, and one blank row between
+  consecutive tables
 
 #### Scenario: Report written after a scan with no duplicates
 - **WHEN** the scan finds no exact or near-duplicate groups
-- **THEN** `duplicates.csv` is still created, containing no group rows
+- **THEN** `duplicates.xlsx` is still created, as a valid workbook containing no
+  group tables
 
 ### Requirement: Print a summary count
 The system SHALL print a one-line summary after scanning, stating the number of
