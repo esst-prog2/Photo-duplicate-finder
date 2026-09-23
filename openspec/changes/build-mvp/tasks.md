@@ -1,9 +1,9 @@
 ## 1. Project setup
 
-- [ ] 1.1 Create `find_duplicates/` package and `tests/` directory; add `pyproject.toml`
+- [x] 1.1 Create `find_duplicates/` package and `tests/` directory; add `pyproject.toml`
   (or `setup.cfg`) declaring dependencies (Pillow, imagehash, click) and dev
   dependency (pytest); verify `pip install -e .` succeeds
-- [ ] 1.2 Add `tests/fixtures/` with synthetic, non-personal test images: a base
+- [x] 1.2 Add `tests/fixtures/` with synthetic, non-personal test images: a base
   image, a byte-identical copy, a resized copy of the base, and an unrelated image;
   verify the four files load correctly with Pillow in a throwaway script
 
@@ -61,3 +61,6 @@
 - [ ] 7.1 Run the full test suite (`pytest`) and confirm all tests pass, including
   the three explicit cases from README.md section 4: identical files grouped,
   unrelated files not grouped, resized copy grouped as near-duplicate
+- [ ] 7.2 Add and verify a test for an empty/no-matching-images folder: running the
+  CLI against it exits without error, writes `duplicates.csv` with no group rows,
+  and prints a summary of zero exact duplicates and zero near-duplicate groups

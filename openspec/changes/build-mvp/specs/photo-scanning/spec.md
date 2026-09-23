@@ -17,6 +17,11 @@ descend into subfolders.
 - **WHEN** the target folder contains a subfolder that itself contains `.jpg` files
 - **THEN** the files inside the subfolder are not included in the scan results
 
+#### Scenario: Folder has no matching images
+- **WHEN** the target folder exists but is empty, or contains no `.jpg`/`.png` files
+- **THEN** the scan completes with an empty result (not an error), and the rest of
+  the pipeline proceeds to report zero duplicate groups
+
 ### Requirement: Report an error for an invalid target
 The system SHALL fail with a clear error message if the given path does not exist or
 is not a folder.

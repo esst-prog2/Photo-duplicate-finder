@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "find-duplicates"
+version = "0.1.0"
+description = "Find exact and near-duplicate photos in a folder"
+requires-python = ">=3.11"
+dependencies = [
+    "Pillow>=10",
+    "imagehash>=4.3",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+
+[tool.setuptools.packages.find]
+include = ["find_duplicates*"]
