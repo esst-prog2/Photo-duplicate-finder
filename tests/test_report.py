@@ -1,9 +1,9 @@
-import csv
 from pathlib import Path
 
+from openpyxl import load_workbook
 from PIL import Image
 
-from find_duplicates.report import DuplicateGroup, choose_keep, write_report
+from find_duplicates.report import KEEP_FILL, DuplicateGroup, choose_keep, write_report
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -39,41 +39,53 @@ def test_tie_break_by_resolution_when_file_sizes_are_equal(tmp_path):
     assert choose_keep([small_path, large_path]) == large_path
 
 
-def test_write_report_writes_one_row_per_group(tmp_path):
+def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path):
     base = FIXTURES / "base.png"
     resized = FIXTURES / "base_resized.png"
     unrelated = FIXTURES / "unrelated.png"
     groups = [
-        DuplicateGroup(members=[base, resized], similarity_score="exact", keep=base),
+        DuplicateGroup(members=[base, resized], similarity_score="0", keep=resized),
         DuplicateGroup(members=[base, unrelated], similarity_score="12", keep=base),
     ]
-    output_path = tmp_path / "duplicates.csv"
+    output_path = tmp_path / "duplicates.xlsx"
 
     write_report(groups, output_path)
 
-    with open(output_path, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
+    sheet = load_workbook(output_path).active
+    rows = [tuple(cell.value for cell in row) for row in sheet.iter_rows(max_col=2)]
 
-    assert len(rows) == 2
-    assert rows[0] == {
-        "files": "base.png;base_resized.png",
-        "similarity_score": "exact",
-        "keep": "base.png",
-    }
-    assert rows[1] == {
-        "files": "base.png;unrelated.png",
-        "similarity_score": "12",
-        "keep": "base.png",
-    }
+    assert rows == [
+        ("File", "Similarity Score"),
+        ("base.png", "0"),
+        ("base_resized.png", "0"),
+        (None, None),
+        ("File", "Similarity Score"),
+        ("base.png", "12"),
+        ("unrelated.png", "12"),
+    ]
 
 
-def test_write_report_with_no_groups_creates_header_only_csv(tmp_path):
-    output_path = tmp_path / "duplicates.csv"
+def test_write_report_highlights_the_keep_row(tmp_path):
+    base = FIXTURES / "base.png"
+    resized = FIXTURES / "base_resized.png"
+    groups = [DuplicateGroup(members=[base, resized], similarity_score="0", keep=resized)]
+    output_path = tmp_path / "duplicates.xlsx"
+
+    write_report(groups, output_path)
+
+    sheet = load_workbook(output_path).active
+    # Row 2 is base.png (not kept), row 3 is base_resized.png (kept).
+    assert sheet.cell(row=2, column=1).fill.start_color.rgb != KEEP_FILL.start_color.rgb
+    assert sheet.cell(row=3, column=1).fill.start_color.rgb == KEEP_FILL.start_color.rgb
+    assert sheet.cell(row=3, column=2).fill.start_color.rgb == KEEP_FILL.start_color.rgb
+
+
+def test_write_report_with_no_groups_creates_valid_empty_workbook(tmp_path):
+    output_path = tmp_path / "duplicates.xlsx"
 
     write_report([], output_path)
 
     assert output_path.exists()
-    with open(output_path, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-
-    assert rows == []
+    sheet = load_workbook(output_path).active
+    assert sheet.max_row == 1
+    assert sheet.cell(row=1, column=1).value is None

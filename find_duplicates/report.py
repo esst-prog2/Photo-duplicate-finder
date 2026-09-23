@@ -1,10 +1,11 @@
-import csv
 from dataclasses import dataclass
 from pathlib import Path
 
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill
 from PIL import Image
 
-CSV_FIELDNAMES = ["files", "similarity_score", "keep"]
+KEEP_FILL = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
 
 def _keep_metric(path: Path) -> tuple[int, int]:
@@ -26,14 +27,21 @@ class DuplicateGroup:
 
 
 def write_report(groups: list[DuplicateGroup], output_path: Path) -> None:
-    with open(output_path, "w", newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=CSV_FIELDNAMES)
-        writer.writeheader()
-        for group in groups:
-            writer.writerow(
-                {
-                    "files": ";".join(member.name for member in group.members),
-                    "similarity_score": group.similarity_score,
-                    "keep": group.keep.name,
-                }
-            )
+    workbook = Workbook()
+    sheet = workbook.active
+
+    row = 1
+    for group in groups:
+        sheet.cell(row=row, column=1, value="File")
+        sheet.cell(row=row, column=2, value="Similarity Score")
+        row += 1
+        for member in group.members:
+            file_cell = sheet.cell(row=row, column=1, value=member.name)
+            score_cell = sheet.cell(row=row, column=2, value=group.similarity_score)
+            if member == group.keep:
+                file_cell.fill = KEEP_FILL
+                score_cell.fill = KEEP_FILL
+            row += 1
+        row += 1
+
+    workbook.save(output_path)

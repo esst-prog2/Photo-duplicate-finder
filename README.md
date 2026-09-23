@@ -7,18 +7,19 @@
 
 I run `find-duplicates photos/` in a terminal. It scans x images and
 prints: "3 exact duplicates found, 5 near-duplicate groups found." It
-writes `duplicates.csv` next to the folder — one row per group, listing
-the filenames in that group, a similarity score, and a suggested file to
-keep (the largest or highest-resolution copy). I open the CSV and see a
-group of four files — a burst of near-identical shots — with
-IMG_0231.jpg marked "keep" and the other three marked "duplicate."
+writes `duplicates.xlsx` next to the folder — one table per group,
+listing the filenames in that group and a similarity score, with the
+suggested file to keep (the largest or highest-resolution copy)
+highlighted. I open the spreadsheet and see a table for a group of four
+files — a burst of near-identical shots — with IMG_0231.jpg highlighted
+as "keep" and the other three left unhighlighted.
 
 ## 2. The shape
 
 in            a folder of image files (.jpg, .png)
-out           a CSV report: one row per duplicate/near-duplicate group,
-              listing the files in the group, a similarity score, and a
-              suggested file to keep
+out           an Excel report: one table per duplicate/near-duplicate
+              group, listing the files in the group, a similarity score,
+              and a suggested file to keep (highlighted)
 in between    hash each file to catch exact duplicates; compute a
               perceptual similarity measure between remaining images to
               catch near-duplicates; group images whose similarity
@@ -33,14 +34,14 @@ First useful version
 - detects near-duplicates via a perceptual similarity measure, within a
   configurable threshold
 - groups matches and suggests one file to keep per group
-- outputs one CSV report + a printed summary count
+- outputs one Excel report + a printed summary count
 
 Not this term
 - recursive folder scanning
 - automatically deleting or moving files
 - detecting rotated, cropped, or heavily edited duplicates
 - video file support
-- a graphical interface for reviewing groups (CSV output only)
+- a graphical interface for reviewing groups (Excel output only)
 - cloud storage integration (Google Photos, iCloud, etc.)
 
 ## 4. How we would know it works

@@ -69,7 +69,7 @@ def main(folder: Path, threshold: int) -> None:
         click.echo(f"Error: {error}", err=True)
         sys.exit(1)
 
-    write_report(duplicate_groups, folder.parent / "duplicates.csv")
+    write_report(duplicate_groups, folder.parent / "duplicates.xlsx")
     click.echo(
         f"{exact_count} exact duplicates found, "
         f"{near_duplicate_group_count} near-duplicate groups found."

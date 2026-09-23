@@ -1,6 +1,5 @@
-import csv
-
 from click.testing import CliRunner
+from openpyxl import load_workbook
 
 from find_duplicates.cli import main
 
@@ -15,11 +14,11 @@ def test_empty_folder_exits_cleanly_with_zero_counts(tmp_path):
     assert result.exit_code == 0
     assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
 
-    report_path = tmp_path / "duplicates.csv"
+    report_path = tmp_path / "duplicates.xlsx"
     assert report_path.exists()
-    with open(report_path, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    assert rows == []
+    sheet = load_workbook(report_path).active
+    assert sheet.max_row == 1
+    assert sheet.cell(row=1, column=1).value is None
 
 
 def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path):
@@ -33,8 +32,8 @@ def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path)
     assert result.exit_code == 0
     assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
 
-    report_path = tmp_path / "duplicates.csv"
+    report_path = tmp_path / "duplicates.xlsx"
     assert report_path.exists()
-    with open(report_path, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    assert rows == []
+    sheet = load_workbook(report_path).active
+    assert sheet.max_row == 1
+    assert sheet.cell(row=1, column=1).value is None
