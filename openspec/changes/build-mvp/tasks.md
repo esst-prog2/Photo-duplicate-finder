@@ -9,17 +9,17 @@
 
 ## 2. Photo scanning (specs/photo-scanning)
 
-- [ ] 2.1 Implement `scanner.py`: list `.jpg`/`.png` files in a given folder,
+- [x] 2.1 Implement `scanner.py`: list `.jpg`/`.png` files in a given folder,
   non-recursive; verify with a unit test that files in a subfolder are excluded
-- [ ] 2.2 Implement invalid-path handling (missing path, path is a file) with a
+- [x] 2.2 Implement invalid-path handling (missing path, path is a file) with a
   clear error; verify with unit tests for both cases
 
 ## 3. Exact-duplicate detection (specs/exact-duplicate-detection)
 
-- [ ] 3.1 Implement `hashing.py` exact-hash function (SHA-256 over file bytes);
+- [x] 3.1 Implement `hashing.py` exact-hash function (SHA-256 over file bytes);
   verify with a unit test that the identical-copy fixture hashes equal to the base
   image and the unrelated fixture hashes different
-- [ ] 3.2 Implement exact-duplicate grouping (group files sharing a hash); verify
+- [x] 3.2 Implement exact-duplicate grouping (group files sharing a hash); verify
   with a unit test using the fixture set
 
 ## 4. Near-duplicate detection (specs/near-duplicate-detection)
