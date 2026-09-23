@@ -24,17 +24,17 @@
 
 ## 4. Near-duplicate detection (specs/near-duplicate-detection)
 
-- [ ] 4.1 Implement `hashing.py` perceptual-hash function (`imagehash.average_hash`)
+- [x] 4.1 Implement `hashing.py` perceptual-hash function (`imagehash.average_hash`)
   and a Hamming-distance comparison; verify with a unit test comparing the base
   image against itself (distance 0)
-- [ ] 4.2 Add configurable similarity threshold (CLI `--threshold` option with a
+- [x] 4.2 Add configurable similarity threshold (CLI `--threshold` option with a
   documented default); verify with a unit test that a custom threshold changes the
   match decision for a borderline case
-- [ ] 4.3 Verify against the required acceptance case: the resized-copy fixture is
+- [x] 4.3 Verify against the required acceptance case: the resized-copy fixture is
   detected as a near-duplicate of the base image at the default threshold, and the
   unrelated fixture is not — as an explicit automated test (not just manual
   inspection)
-- [ ] 4.4 Exclude file pairs already grouped as exact duplicates from the
+- [x] 4.4 Exclude file pairs already grouped as exact duplicates from the
   near-duplicate comparison; verify with a unit test
 
 ## 5. Grouping and reporting (specs/duplicate-report)
