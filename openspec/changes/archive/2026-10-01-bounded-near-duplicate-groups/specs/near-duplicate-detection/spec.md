@@ -1,11 +1,4 @@
-# near-duplicate-detection Specification
-
-## Purpose
-Identifies files that are visually similar but not byte-identical (e.g. a resized or
-re-compressed copy of the same photo), using a perceptual similarity measure and a
-configurable threshold.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Detect visually similar files within a threshold
 The system SHALL compute a perceptual similarity score between two files and SHALL

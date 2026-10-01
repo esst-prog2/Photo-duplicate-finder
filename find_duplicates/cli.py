@@ -4,12 +4,12 @@ from itertools import combinations
 from pathlib import Path
 
 import click
+import imagehash
 
-from find_duplicates.grouping import merge_duplicate_groups
+from find_duplicates.grouping import cluster_by_threshold
 from find_duplicates.hashing import (
     DEFAULT_NEAR_DUPLICATE_THRESHOLD,
     exact_hash,
-    find_near_duplicate_pairs,
     group_by_exact_hash,
     hamming_distance,
     perceptual_hash,
@@ -22,14 +22,20 @@ def _categorize_distance(distance: int, threshold: int) -> str:
     return "Very Similar" if distance <= threshold // 2 else "Similar"
 
 
-def _group_similarity_score(members: list[Path], threshold: int) -> str:
-    exact_hashes = [exact_hash(member) for member in members]
-    if len(set(exact_hashes)) == 1:
+def _group_similarity_score(
+    members: list[Path],
+    exact_hashes: dict[Path, str],
+    perceptual_hashes: dict[Path, imagehash.ImageHash],
+    threshold: int,
+) -> str:
+    if len({exact_hashes[member] for member in members}) == 1:
         return "Exact"
 
-    hashes = [perceptual_hash(member) for member in members]
     max_distance = max(
-        (hamming_distance(hashes[i], hashes[j]) for i, j in combinations(range(len(hashes)), 2)),
+        (
+            hamming_distance(perceptual_hashes[members[i]], perceptual_hashes[members[j]])
+            for i, j in combinations(range(len(members)), 2)
+        ),
         default=0,
     )
     return _categorize_distance(max_distance, threshold)
@@ -42,29 +48,30 @@ def _report_filename(now: datetime) -> str:
 def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
     files = scan_folder(folder)
 
-    exact_groups = group_by_exact_hash(files)
-    near_duplicate_pairs = find_near_duplicate_pairs(files, threshold=threshold)
-    merged_groups = merge_duplicate_groups(files, exact_groups, near_duplicate_pairs)
+    exact_hashes = {file: exact_hash(file) for file in files}
+    perceptual_hashes = {file: perceptual_hash(file) for file in files}
 
-    near_duplicate_member_pairs = {frozenset(pair) for pair in near_duplicate_pairs}
+    def distance(file_a: Path, file_b: Path) -> int:
+        return hamming_distance(perceptual_hashes[file_a], perceptual_hashes[file_b])
+
+    groups = cluster_by_threshold(files, distance, threshold)
+    exact_group_count = len(group_by_exact_hash(files))
 
     duplicate_groups = []
     near_duplicate_group_count = 0
-    for members in merged_groups:
-        has_near_duplicate_pair = any(
-            frozenset(pair) in near_duplicate_member_pairs for pair in combinations(members, 2)
-        )
-        if has_near_duplicate_pair:
+    for members in groups:
+        score = _group_similarity_score(members, exact_hashes, perceptual_hashes, threshold)
+        if score != "Exact":
             near_duplicate_group_count += 1
         duplicate_groups.append(
             DuplicateGroup(
                 members=members,
-                similarity_score=_group_similarity_score(members, threshold),
+                similarity_score=score,
                 keep=choose_keep(members),
             )
         )
 
-    return len(exact_groups), near_duplicate_group_count, duplicate_groups
+    return exact_group_count, near_duplicate_group_count, duplicate_groups
 
 
 @click.command()
