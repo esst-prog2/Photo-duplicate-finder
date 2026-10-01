@@ -19,3 +19,21 @@ Append-only. Format: `YYYY-MM-DD | decision | decided by: User or Claude`
 2026-09-23 | Implemented and archived similarity-categories. Fixed a bug found during manual verification: a mixed exact+near-duplicate group was labeled "Exact" if ANY pair shared an exact hash; now requires ALL members share the same exact hash | decided by: User
 2026-09-23 | duplicates.xlsx silently overwrote an existing file with the same name -- discovered by testing. Wrote OpenSpec change `timestamped-report`: filename becomes duplicates_<YYYYMMDD>_<HHMM>.xlsx (minute precision, local time), and the CLI warns + prompts for confirmation before overwriting if that exact filename already exists | decided by: User
 2026-09-23 | Implemented and archived timestamped-report; duplicate-report capability's spec now documents the timestamped filename and the overwrite-confirmation requirement as source of truth | decided by: User
+2026-10-01 | Spike: For me the answer was already determined: A thirteen-row table plus one sentence: the widest safe threshold, the size of the largest group there, and how many groups contain a photo that does not belong. | decided by: User
+2026-10-01 | Spike answer: widest safe threshold is 1 (largest group there has 9 elements, 32 groups total, 8 of them contain a photo that does not belong); feedback from last week is validated, the bridge/chaining problem needs to be addressed, and real photos need to be added to the hashing test process | decided by: User
+
+| threshold | group_count | largest_group_size |
+|-----------|-------------|---------------------|
+| 0         | 22          | 2                   |
+| 1         | 32          | 9                   |
+| 2         | 25          | 43                  |
+| 3         | 27          | 74                  |
+| 4         | 26          | 96                  |
+| 5         | 27          | 109                 |
+| 6         | 30          | 125                 |
+| 7         | 32          | 140                 |
+| 8         | 36          | 153                 |
+| 9         | 38          | 171                 |
+| 10        | 30          | 201                 |
+| 11        | 28          | 234                 |
+| 12        | 24          | 259                 |
