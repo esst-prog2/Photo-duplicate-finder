@@ -37,3 +37,5 @@ Append-only. Format: `YYYY-MM-DD | decision | decided by: User or Claude`
 | 10        | 30          | 201                 |
 | 11        | 28          | 234                 |
 | 12        | 24          | 259                 |
+
+2026-10-01 | Wrote OpenSpec change `bounded-near-duplicate-groups` to fix the chaining bug the spike confirmed: replace single-linkage (transitive closure/union-find) grouping with greedy complete-linkage (clique-bounded) grouping, so every reported group's max internal pairwise distance never exceeds the threshold; also adds real (non-synthetic) photo fixtures to validate the approach | decided by: User
