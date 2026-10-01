@@ -34,20 +34,3 @@ def is_near_duplicate(
     threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD,
 ) -> bool:
     return bool(hamming_distance(hash_a, hash_b) <= threshold)
-
-
-def find_near_duplicate_pairs(
-    files: list[Path],
-    threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD,
-) -> list[tuple[Path, Path]]:
-    exact_hashes = {file: exact_hash(file) for file in files}
-    perceptual_hashes = {file: perceptual_hash(file) for file in files}
-
-    pairs = []
-    for i, file_a in enumerate(files):
-        for file_b in files[i + 1 :]:
-            if exact_hashes[file_a] == exact_hashes[file_b]:
-                continue
-            if is_near_duplicate(perceptual_hashes[file_a], perceptual_hashes[file_b], threshold):
-                pairs.append((file_a, file_b))
-    return pairs

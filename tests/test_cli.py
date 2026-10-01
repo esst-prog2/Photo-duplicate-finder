@@ -1,3 +1,4 @@
+import shutil
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
@@ -11,9 +12,15 @@ from find_duplicates.cli import (
     _report_filename,
     main,
 )
-from find_duplicates.hashing import DEFAULT_NEAR_DUPLICATE_THRESHOLD
+from find_duplicates.hashing import DEFAULT_NEAR_DUPLICATE_THRESHOLD, exact_hash, perceptual_hash
 
 FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def _score_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
+    exact_hashes = {member: exact_hash(member) for member in members}
+    perceptual_hashes = {member: perceptual_hash(member) for member in members}
+    return _group_similarity_score(members, exact_hashes, perceptual_hashes, threshold)
 
 
 def test_report_filename_includes_date_and_time_to_the_minute():
@@ -50,35 +57,27 @@ def test_categorize_distance_above_midpoint_is_similar():
 
 
 def test_group_similarity_score_for_exact_duplicates_is_exact():
-    base = FIXTURES / "base.png"
-    identical_copy = FIXTURES / "base_identical_copy.png"
+    base = FIXTURES / "base.jpg"
+    identical_copy = FIXTURES / "base_identical_copy.jpg"
 
-    score = _group_similarity_score([base, identical_copy], DEFAULT_NEAR_DUPLICATE_THRESHOLD)
-
-    assert score == "Exact"
+    assert _score_for([base, identical_copy]) == "Exact"
 
 
 def test_group_similarity_score_for_resized_copy_is_very_similar():
-    base = FIXTURES / "base.png"
-    resized = FIXTURES / "base_resized.png"
+    base = FIXTURES / "base.jpg"
+    resized = FIXTURES / "base_resized.jpg"
 
-    score = _group_similarity_score([base, resized], DEFAULT_NEAR_DUPLICATE_THRESHOLD)
-
-    assert score == "Very Similar"
+    assert _score_for([base, resized]) == "Very Similar"
 
 
 def test_group_similarity_score_for_mixed_exact_and_near_group_is_not_exact():
-    base = FIXTURES / "base.png"
-    identical_copy = FIXTURES / "base_identical_copy.png"
-    resized = FIXTURES / "base_resized.png"
+    base = FIXTURES / "base.jpg"
+    identical_copy = FIXTURES / "base_identical_copy.jpg"
+    resized = FIXTURES / "base_resized.jpg"
 
     # base and identical_copy are exact duplicates, but resized only matches by
     # perceptual distance -- the group as a whole should not be labeled "Exact".
-    score = _group_similarity_score(
-        [base, identical_copy, resized], DEFAULT_NEAR_DUPLICATE_THRESHOLD
-    )
-
-    assert score != "Exact"
+    assert _score_for([base, identical_copy, resized]) != "Exact"
 
 
 def test_no_overwrite_prompt_when_target_filename_does_not_exist(tmp_path):
@@ -130,6 +129,34 @@ def test_confirming_overwrite_prompt_replaces_the_existing_file(tmp_path):
     sheet = load_workbook(existing_report).active
     assert sheet.max_row == 1
     assert sheet.cell(row=1, column=1).value is None
+
+
+def test_full_pipeline_against_real_photo_fixtures(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    for name in ["base.jpg", "base_identical_copy.jpg", "base_resized.jpg", "unrelated.jpg"]:
+        shutil.copy(FIXTURES / name, folder / name)
+
+    runner = CliRunner()
+    result = runner.invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == "1 exact duplicates found, 1 near-duplicate groups found."
+
+    report_paths = list(tmp_path.glob("duplicates_*.xlsx"))
+    assert len(report_paths) == 1
+    sheet = load_workbook(report_paths[0]).active
+    rows = [tuple(cell.value for cell in row) for row in sheet.iter_rows(max_col=2)]
+
+    # base, its exact copy, and the resized copy all merge into one group
+    # (every pair among them is within the default threshold); unrelated.jpg
+    # stays out, and there is exactly one group (no second, empty table).
+    assert rows == [
+        ("File", "Similarity Score"),
+        ("base.jpg", "Very Similar"),
+        ("base_identical_copy.jpg", "Very Similar"),
+        ("base_resized.jpg", "Very Similar"),
+    ]
 
 
 def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path):
