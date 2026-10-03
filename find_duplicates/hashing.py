@@ -16,16 +16,19 @@ def group_by_exact_hash(files: list[Path]) -> list[list[Path]]:
     return [group for group in groups.values() if len(group) > 1]
 
 
+PERCEPTUAL_HASH_SIZE = 7
+
+
 def perceptual_hash(path: Path) -> imagehash.ImageHash:
     with Image.open(path) as img:
-        return imagehash.average_hash(img)
+        return imagehash.phash(img, hash_size=PERCEPTUAL_HASH_SIZE)
 
 
 def hamming_distance(hash_a: imagehash.ImageHash, hash_b: imagehash.ImageHash) -> int:
     return hash_a - hash_b
 
 
-DEFAULT_NEAR_DUPLICATE_THRESHOLD = 5
+DEFAULT_NEAR_DUPLICATE_THRESHOLD = 8
 
 
 def is_near_duplicate(
