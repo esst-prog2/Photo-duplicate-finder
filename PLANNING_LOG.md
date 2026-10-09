@@ -46,3 +46,65 @@ Append-only. Format: `YYYY-MM-DD | decision | decided by: User or Claude`
 2026-10-03 | Perceptual hash size set to 7 (49 bits), tried by hand on the user's own photos: size 16 and 10 were too strict even at higher thresholds, and 7 gave the best groups; sizes need not be powers of two, and the size is the PERCEPTUAL_HASH_SIZE constant in hashing.py | decided by: User
 2026-10-03 | Default near-duplicate threshold changed from 1 to 8 (replaces the 5-to-1 line above), found by hand on the user's photos as the best value for phash at size 7; the spike's "widest safe threshold is 1" was measured on ahash and no longer applies | decided by: User
 2026-10-09 | hw5 benchmark expected value, fixed before the program runs on this data: A test would go red if the feature does not categorizes the hand-picked test data right: 20 groups, each of size 4, and 0 contaminated groups. Source: planted data, not program output -- the user hand-picked 20 visually distinct photos (benchmark/sources/), and each will get 3 scripted copies (byte-identical, resized, re-saved at lower JPEG quality), so the expected counts follow from construction | decided by: User
+2026-10-09 | Red then green for the hw5 benchmark test (the assignment requires showing both). The user required the demonstration; Claude chose the line: in find_duplicates/hashing.py, DEFAULT_NEAR_DUPLICATE_THRESHOLD changed from 8 to 40, then `pytest tests/test_benchmark.py -v --tb=short` went red (all 3 tests failed: 1 group of 80 photos instead of 20 groups of 4, and 1 contaminated group). The line was then put back to 8 (git diff empty) and the same command went green (3 passed). Both outputs follow | decided by: Claude
+
+Red run (threshold 40, exit code 1):
+
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0 -- D:\Tanulas\MSC\AP\APClassProject\.venv\Scripts\python.exe
+rootdir: D:\Tanulas\MSC\AP\APClassProject
+configfile: pyproject.toml
+collecting ... collected 3 items
+
+tests/test_benchmark.py::test_benchmark_reports_the_expected_number_of_groups FAILED [ 33%]
+tests/test_benchmark.py::test_benchmark_every_group_has_the_expected_size FAILED [ 66%]
+tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups FAILED [100%]
+
+================================== FAILURES ===================================
+____________ test_benchmark_reports_the_expected_number_of_groups _____________
+tests\test_benchmark.py:57: in test_benchmark_reports_the_expected_number_of_groups
+    assert len(reported_groups) == EXPECTED_GROUPS
+E   AssertionError: assert 1 == 20
+E    +  where 1 = len([['p01_identical.jpg', 'p01_orig.jpg', 'p01_recompressed.jpg', 'p01_resized.jpg', 'p02_identical.jpg', 'p02_orig.jpg', ...]])
+______________ test_benchmark_every_group_has_the_expected_size _______________
+tests\test_benchmark.py:63: in test_benchmark_every_group_has_the_expected_size
+    assert sizes == [EXPECTED_GROUP_SIZE] * EXPECTED_GROUPS
+E   AssertionError: assert [80] == [4, 4, 4, 4, 4, 4, ...]
+E     
+E     At index 0 diff: 80 != 4
+E     Right contains 19 more items, first extra item: 4
+E     
+E     Full diff:
+E       [
+E     -     4,...
+E     
+E     ...Full output truncated (23 lines hidden), use '-vv' to show
+__________________ test_benchmark_has_no_contaminated_groups __________________
+tests\test_benchmark.py:73: in test_benchmark_has_no_contaminated_groups
+    assert len(contaminated) == EXPECTED_CONTAMINATED_GROUPS, contaminated
+E   AssertionError: [['p01_identical.jpg', 'p01_orig.jpg', 'p01_recompressed.jpg', 'p01_resized.jpg', 'p02_identical.jpg', 'p02_orig.jpg', ...]]
+E   assert 1 == 0
+E    +  where 1 = len([['p01_identical.jpg', 'p01_orig.jpg', 'p01_recompressed.jpg', 'p01_resized.jpg', 'p02_identical.jpg', 'p02_orig.jpg', ...]])
+=========================== short test summary info ===========================
+FAILED tests/test_benchmark.py::test_benchmark_reports_the_expected_number_of_groups
+FAILED tests/test_benchmark.py::test_benchmark_every_group_has_the_expected_size
+FAILED tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups - A...
+============================== 3 failed in 1.44s ==============================
+```
+
+Green run (threshold 8, exit code 0):
+
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0 -- D:\Tanulas\MSC\AP\APClassProject\.venv\Scripts\python.exe
+rootdir: D:\Tanulas\MSC\AP\APClassProject
+configfile: pyproject.toml
+collecting ... collected 3 items
+
+tests/test_benchmark.py::test_benchmark_reports_the_expected_number_of_groups PASSED [ 33%]
+tests/test_benchmark.py::test_benchmark_every_group_has_the_expected_size PASSED [ 66%]
+tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups PASSED [100%]
+
+============================== 3 passed in 1.17s ==============================
+```
