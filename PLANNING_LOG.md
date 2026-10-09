@@ -108,3 +108,4 @@ tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups PASSED [100%]
 
 ============================== 3 passed in 1.17s ==============================
 ```
+2026-10-09 | hw5 real-use expectation, written BEFORE the run: the user will run find-duplicates once on their own folder of uncurated photos (it stays on their machine, so the path is not logged) with the default threshold 8 (phash, hash size 7, no --threshold flag) and expects every group in the report to contain only photos of the same shot, so 0 contaminated groups. Source: the planted-data benchmark going green plus the user's earlier hand tuning of size 7 and threshold 8, not a run of the program on this folder | decided by: User
