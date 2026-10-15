@@ -152,7 +152,7 @@ def test_full_pipeline_against_real_photo_fixtures(tmp_path):
     # (every pair among them is within the default threshold); unrelated.jpg
     # stays out, and there is exactly one group (no second, empty table).
     assert rows == [
-        ("File", "Similarity Score"),
+        ("File", "Similarity"),
         ("base.jpg", "Very Similar"),
         ("base_identical_copy.jpg", "Very Similar"),
         ("base_resized.jpg", "Very Similar"),

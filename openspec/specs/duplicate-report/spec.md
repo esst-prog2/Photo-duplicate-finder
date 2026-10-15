@@ -48,7 +48,7 @@ time the scan ran, to the minute) next to the scanned folder, that is, in the pa
 directory of the scanned folder. The folder is resolved to an absolute path first,
 so a folder given as `.` also gets its report in its parent directory. The workbook
 SHALL contain one table per duplicate group on a single worksheet. Each table SHALL
-have a header row ("File", "Similarity Score") followed by one row per member file
+have a header row ("File", "Similarity") followed by one row per member file
 in that group, and consecutive tables SHALL be separated by exactly one blank row.
 Within each table, the row for the suggested "keep" file SHALL be visually
 highlighted (fill color) to distinguish it from the other rows.
@@ -70,7 +70,7 @@ highlighted (fill color) to distinguish it from the other rows.
   not inside the scanned folder
 
 ### Requirement: Label each group with a similarity category
-The "Similarity Score" column SHALL show one of three category labels for the
+The "Similarity" column SHALL show one of three category labels for the
 group, not a raw distance number:
 - `Exact`, when all of the group's members share one exact byte hash.
 - `Very Similar`, when the group's members do not all share one exact byte hash,
@@ -83,25 +83,25 @@ group, not a raw distance number:
 
 #### Scenario: Exact-duplicate group is labeled Exact
 - **WHEN** all of a duplicate group's members share one exact byte hash
-- **THEN** the group's Similarity Score column shows `Exact`
+- **THEN** the group's Similarity column shows `Exact`
 
 #### Scenario: A group that mixes exact duplicates with a merely similar file is not Exact
 - **WHEN** a duplicate group contains two byte-identical files and a third file
   that is only perceptually similar
-- **THEN** the group's Similarity Score column does not show `Exact`; it shows
+- **THEN** the group's Similarity column does not show `Exact`; it shows
   `Very Similar` or `Similar` according to the largest pairwise distance
 
 #### Scenario: Near-duplicate group within the lower half of the threshold is labeled Very Similar
 - **WHEN** a duplicate group's members do not all share one exact byte hash, and
   the largest perceptual-hash Hamming distance between any two of them is at or
   below half of the configured threshold
-- **THEN** the group's Similarity Score column shows `Very Similar`
+- **THEN** the group's Similarity column shows `Very Similar`
 
 #### Scenario: Near-duplicate group in the upper half of the threshold is labeled Similar
 - **WHEN** a duplicate group's members do not all share one exact byte hash, and
   the largest perceptual-hash Hamming distance between any two of them is above
   half of the configured threshold but within the threshold
-- **THEN** the group's Similarity Score column shows `Similar`
+- **THEN** the group's Similarity column shows `Similar`
 
 ### Requirement: Print a summary count
 The system SHALL print a one-line summary after scanning, stating the number of

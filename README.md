@@ -11,7 +11,7 @@ writes `duplicates_20260923_1430.xlsx` next to the folder (the date and
 time of the run, so a rerun doesn't silently overwrite an earlier
 report — if that exact filename ever already exists, I'm asked to
 confirm before it's overwritten) — one table per group, listing the
-filenames in that group and a similarity score, with the suggested file
+filenames in that group and a similarity category, with the suggested file
 to keep (the largest or highest-resolution copy) highlighted. I open the
 spreadsheet and see a table for a group of four files — a burst of
 near-identical shots — with IMG_0231.jpg highlighted as "keep" and the
@@ -21,7 +21,7 @@ other three left unhighlighted.
 
 in            a folder of image files (.jpg, .png)
 out           an Excel report: one table per duplicate/near-duplicate
-              group, listing the files in the group, a similarity score,
+              group, listing the files in the group, a similarity category,
               and a suggested file to keep (highlighted)
 in between    hash each file to catch exact duplicates; compute a
               perceptual similarity measure between remaining images to

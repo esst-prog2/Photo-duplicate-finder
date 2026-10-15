@@ -33,14 +33,14 @@ def write_report(groups: list[DuplicateGroup], output_path: Path) -> None:
     row = 1
     for group in groups:
         sheet.cell(row=row, column=1, value="File")
-        sheet.cell(row=row, column=2, value="Similarity Score")
+        sheet.cell(row=row, column=2, value="Similarity")
         row += 1
         for member in group.members:
             file_cell = sheet.cell(row=row, column=1, value=member.name)
-            score_cell = sheet.cell(row=row, column=2, value=group.similarity_category)
+            similarity_cell = sheet.cell(row=row, column=2, value=group.similarity_category)
             if member == group.keep:
                 file_cell.fill = KEEP_FILL
-                score_cell.fill = KEEP_FILL
+                similarity_cell.fill = KEEP_FILL
             row += 1
         row += 1
 

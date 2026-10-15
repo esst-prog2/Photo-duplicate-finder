@@ -71,11 +71,11 @@ def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path
     rows = [tuple(cell.value for cell in row) for row in sheet.iter_rows(max_col=2)]
 
     assert rows == [
-        ("File", "Similarity Score"),
+        ("File", "Similarity"),
         ("base.jpg", "Very Similar"),
         ("base_resized.jpg", "Very Similar"),
         (None, None),
-        ("File", "Similarity Score"),
+        ("File", "Similarity"),
         ("base.jpg", "Similar"),
         ("unrelated.jpg", "Similar"),
     ]
