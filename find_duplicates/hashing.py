@@ -2,7 +2,7 @@ import hashlib
 from pathlib import Path
 
 import imagehash
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 def exact_hash(path: Path) -> str:
@@ -21,11 +21,11 @@ PERCEPTUAL_HASH_SIZE = 7
 
 def perceptual_hash(path: Path) -> imagehash.ImageHash:
     with Image.open(path) as img:
-        return imagehash.phash(img, hash_size=PERCEPTUAL_HASH_SIZE)
+        return imagehash.phash(ImageOps.exif_transpose(img), hash_size=PERCEPTUAL_HASH_SIZE)
 
 
 def hamming_distance(hash_a: imagehash.ImageHash, hash_b: imagehash.ImageHash) -> int:
-    return hash_a - hash_b
+    return int(hash_a - hash_b)
 
 
 DEFAULT_NEAR_DUPLICATE_THRESHOLD = 8
@@ -36,4 +36,4 @@ def is_near_duplicate(
     hash_b: imagehash.ImageHash,
     threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD,
 ) -> bool:
-    return bool(hamming_distance(hash_a, hash_b) <= threshold)
+    return hamming_distance(hash_a, hash_b) <= threshold
