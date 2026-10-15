@@ -8,9 +8,10 @@ configurable threshold.
 ## Requirements
 
 ### Requirement: Detect visually similar files within a threshold
-The system SHALL compute a perceptual similarity score between two files, and two
-files whose score is within a configurable threshold are eligible to be grouped as
-near-duplicates. The system SHALL only report a group of more than two files when
+The system SHALL compute a perceptual distance between two files (the Hamming
+distance between their perceptual hashes; the smaller it is, the more alike the
+files look), and two files whose distance is within a configurable threshold are
+eligible to be grouped as near-duplicates. The system SHALL only report a group of more than two files when
 every pair of its members is within the threshold of each other — a chain of
 pairwise matches alone (where some pair in the group exceeds the threshold) SHALL
 NOT be sufficient to form or extend a group. Being within the threshold of another

@@ -10,8 +10,8 @@ summary.
 ### Requirement: Merge exact and near-duplicate matches into groups
 The system SHALL combine exact-duplicate and near-duplicate matches into groups
 such that every pair of members within a group is either an exact duplicate of
-each other or within the configured near-duplicate threshold of each other (a
-clique-bounded group), so no file appears in more than one output group, and no
+each other or within the configured near-duplicate threshold of each other, so no
+file appears in more than one output group, and no
 group is formed purely by chaining through intermediate files that are not
 themselves mutually similar.
 

@@ -6,7 +6,7 @@ from pathlib import Path
 import click
 import imagehash
 
-from find_duplicates.grouping import cluster_by_threshold
+from find_duplicates.grouping import group_by_threshold
 from find_duplicates.hashing import (
     DEFAULT_NEAR_DUPLICATE_THRESHOLD,
     exact_hash,
@@ -14,7 +14,7 @@ from find_duplicates.hashing import (
     hamming_distance,
     perceptual_hash,
 )
-from find_duplicates.report import DuplicateGroup, choose_keep, write_report
+from find_duplicates.report import DuplicateGroup, suggest_keep, write_report
 from find_duplicates.scanner import ScanTargetError, scan_folder
 
 
@@ -22,7 +22,7 @@ def _categorize_distance(distance: int, threshold: int) -> str:
     return "Very Similar" if distance <= threshold // 2 else "Similar"
 
 
-def _group_similarity_score(
+def _group_similarity_category(
     members: list[Path],
     exact_hashes: dict[Path, str],
     perceptual_hashes: dict[Path, imagehash.ImageHash],
@@ -54,20 +54,20 @@ def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
     def distance(file_a: Path, file_b: Path) -> int:
         return hamming_distance(perceptual_hashes[file_a], perceptual_hashes[file_b])
 
-    groups = cluster_by_threshold(files, distance, threshold)
+    groups = group_by_threshold(files, distance, threshold)
     exact_group_count = len(group_by_exact_hash(files))
 
     duplicate_groups = []
     near_duplicate_group_count = 0
     for members in groups:
-        score = _group_similarity_score(members, exact_hashes, perceptual_hashes, threshold)
-        if score != "Exact":
+        category = _group_similarity_category(members, exact_hashes, perceptual_hashes, threshold)
+        if category != "Exact":
             near_duplicate_group_count += 1
         duplicate_groups.append(
             DuplicateGroup(
                 members=members,
-                similarity_score=score,
-                keep=choose_keep(members),
+                similarity_category=category,
+                keep=suggest_keep(members),
             )
         )
 

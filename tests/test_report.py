@@ -3,7 +3,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 from PIL import Image
 
-from find_duplicates.report import KEEP_FILL, DuplicateGroup, choose_keep, write_report
+from find_duplicates.report import KEEP_FILL, DuplicateGroup, suggest_keep, write_report
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -16,7 +16,7 @@ def test_real_photo_keeps_the_larger_higher_resolution_original():
     with Image.open(base) as base_img, Image.open(resized) as resized_img:
         assert (base_img.width * base_img.height) > (resized_img.width * resized_img.height)
 
-    assert choose_keep([base, resized]) == base
+    assert suggest_keep([base, resized]) == base
 
 
 def test_largest_file_size_wins_even_with_lower_resolution(tmp_path):
@@ -35,7 +35,7 @@ def test_largest_file_size_wins_even_with_lower_resolution(tmp_path):
         f.write(b"\x00" * max(size_diff, 0))
     assert small_path.stat().st_size > large_path.stat().st_size
 
-    assert choose_keep([small_path, large_path]) == small_path
+    assert suggest_keep([small_path, large_path]) == small_path
 
 
 def test_tie_break_by_resolution_when_file_sizes_are_equal(tmp_path):
@@ -52,7 +52,7 @@ def test_tie_break_by_resolution_when_file_sizes_are_equal(tmp_path):
         f.write(b"\x00" * size_diff)
     assert small_path.stat().st_size == large_path.stat().st_size
 
-    assert choose_keep([small_path, large_path]) == large_path
+    assert suggest_keep([small_path, large_path]) == large_path
 
 
 def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path):
@@ -60,8 +60,8 @@ def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path
     resized = FIXTURES / "base_resized.jpg"
     unrelated = FIXTURES / "unrelated.jpg"
     groups = [
-        DuplicateGroup(members=[base, resized], similarity_score="Very Similar", keep=resized),
-        DuplicateGroup(members=[base, unrelated], similarity_score="Similar", keep=base),
+        DuplicateGroup(members=[base, resized], similarity_category="Very Similar", keep=resized),
+        DuplicateGroup(members=[base, unrelated], similarity_category="Similar", keep=base),
     ]
     output_path = tmp_path / "duplicates.xlsx"
 
@@ -84,7 +84,7 @@ def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path
 def test_write_report_highlights_the_keep_row(tmp_path):
     base = FIXTURES / "base.jpg"
     resized = FIXTURES / "base_resized.jpg"
-    groups = [DuplicateGroup(members=[base, resized], similarity_score="Very Similar", keep=resized)]
+    groups = [DuplicateGroup(members=[base, resized], similarity_category="Very Similar", keep=resized)]
     output_path = tmp_path / "duplicates.xlsx"
 
     write_report(groups, output_path)

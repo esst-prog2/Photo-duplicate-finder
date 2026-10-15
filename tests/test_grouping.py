@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from find_duplicates.grouping import cluster_by_threshold
+from find_duplicates.grouping import group_by_threshold
 
 
 def _distance_from_table(table: dict[frozenset, int]):
@@ -17,7 +17,7 @@ def test_two_files_within_threshold_form_one_group():
     file_b = Path("b.jpg")
     distance = _distance_from_table({frozenset({file_a, file_b}): 2})
 
-    groups = cluster_by_threshold([file_a, file_b], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b], distance, threshold=5)
 
     assert len(groups) == 1
     assert set(groups[0]) == {file_a, file_b}
@@ -28,7 +28,7 @@ def test_unrelated_files_produce_no_groups():
     file_b = Path("b.jpg")
     distance = _distance_from_table({frozenset({file_a, file_b}): 20})
 
-    groups = cluster_by_threshold([file_a, file_b], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b], distance, threshold=5)
 
     assert groups == []
 
@@ -49,14 +49,14 @@ def test_disjoint_matches_produce_separate_groups():
         }
     )
 
-    groups = cluster_by_threshold([file_a, file_b, file_c, file_d], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b, file_c, file_d], distance, threshold=5)
 
     assert len(groups) == 2
     group_sets = {frozenset(group) for group in groups}
     assert group_sets == {frozenset({file_a, file_b}), frozenset({file_c, file_d})}
 
 
-def test_exact_duplicate_merges_into_a_near_duplicate_clique():
+def test_exact_duplicate_merges_into_a_near_duplicate_group():
     # A and B are exact duplicates (distance 0); B and C are near-duplicates
     # (distance 3, within threshold). By the triangle inequality, A-C can be at
     # most 0 + 3 = 3, also within threshold, so all three correctly form one group.
@@ -71,7 +71,7 @@ def test_exact_duplicate_merges_into_a_near_duplicate_clique():
         }
     )
 
-    groups = cluster_by_threshold([file_a, file_b, file_c], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b, file_c], distance, threshold=5)
 
     assert len(groups) == 1
     assert set(groups[0]) == {file_a, file_b, file_c}
@@ -80,7 +80,7 @@ def test_exact_duplicate_merges_into_a_near_duplicate_clique():
 def test_chain_whose_ends_are_not_similar_is_not_merged_into_one_group():
     # A-B, B-C, C-D are each within threshold (3 <= 5), but A-D is far outside it
     # (9 > 5). Single-linkage/transitive-closure grouping would incorrectly merge
-    # all four into one group; clique-bounded grouping must not.
+    # all four into one group; grouping that checks every pair must not.
     file_a = Path("a.jpg")
     file_b = Path("b.jpg")
     file_c = Path("c.jpg")
@@ -96,7 +96,7 @@ def test_chain_whose_ends_are_not_similar_is_not_merged_into_one_group():
         }
     )
 
-    groups = cluster_by_threshold([file_a, file_b, file_c, file_d], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b, file_c, file_d], distance, threshold=5)
 
     for group in groups:
         assert not ({file_a, file_d} <= set(group))
@@ -116,7 +116,7 @@ def test_file_within_threshold_of_two_dissimilar_files_joins_at_most_one_of_them
         }
     )
 
-    groups = cluster_by_threshold([file_a, file_b, file_c], distance, threshold=5)
+    groups = group_by_threshold([file_a, file_b, file_c], distance, threshold=5)
 
     assert len(groups) == 1
     assert len(groups[0]) == 2

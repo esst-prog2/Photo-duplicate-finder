@@ -8,7 +8,7 @@ from openpyxl import load_workbook
 
 from find_duplicates.cli import (
     _categorize_distance,
-    _group_similarity_score,
+    _group_similarity_category,
     _report_filename,
     main,
 )
@@ -17,10 +17,10 @@ from find_duplicates.hashing import DEFAULT_NEAR_DUPLICATE_THRESHOLD, exact_hash
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def _score_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
+def _category_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
     exact_hashes = {member: exact_hash(member) for member in members}
     perceptual_hashes = {member: perceptual_hash(member) for member in members}
-    return _group_similarity_score(members, exact_hashes, perceptual_hashes, threshold)
+    return _group_similarity_category(members, exact_hashes, perceptual_hashes, threshold)
 
 
 def test_report_filename_includes_date_and_time_to_the_minute():
@@ -56,28 +56,28 @@ def test_categorize_distance_above_midpoint_is_similar():
     assert _categorize_distance(5, threshold=5) == "Similar"
 
 
-def test_group_similarity_score_for_exact_duplicates_is_exact():
+def test_group_similarity_category_for_exact_duplicates_is_exact():
     base = FIXTURES / "base.jpg"
     identical_copy = FIXTURES / "base_identical_copy.jpg"
 
-    assert _score_for([base, identical_copy]) == "Exact"
+    assert _category_for([base, identical_copy]) == "Exact"
 
 
-def test_group_similarity_score_for_resized_copy_is_very_similar():
+def test_group_similarity_category_for_resized_copy_is_very_similar():
     base = FIXTURES / "base.jpg"
     resized = FIXTURES / "base_resized.jpg"
 
-    assert _score_for([base, resized]) == "Very Similar"
+    assert _category_for([base, resized]) == "Very Similar"
 
 
-def test_group_similarity_score_for_mixed_exact_and_near_group_is_not_exact():
+def test_group_similarity_category_for_mixed_exact_and_near_group_is_not_exact():
     base = FIXTURES / "base.jpg"
     identical_copy = FIXTURES / "base_identical_copy.jpg"
     resized = FIXTURES / "base_resized.jpg"
 
     # base and identical_copy are exact duplicates, but resized only matches by
     # perceptual distance -- the group as a whole should not be labeled "Exact".
-    assert _score_for([base, identical_copy, resized]) != "Exact"
+    assert _category_for([base, identical_copy, resized]) != "Exact"
 
 
 def test_no_overwrite_prompt_when_target_filename_does_not_exist(tmp_path):
