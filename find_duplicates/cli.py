@@ -15,7 +15,7 @@ from find_duplicates.hashing import (
     perceptual_hash,
 )
 from find_duplicates.report import DuplicateGroup, suggest_keep, write_report
-from find_duplicates.scanner import ScanTargetError, scan_folder
+from find_duplicates.scanner import ScanTargetError, scan_folder, skipped_image_files
 
 
 def _categorize_distance(distance: int, threshold: int) -> str:
@@ -31,10 +31,7 @@ def _group_similarity_category(
     if len({exact_hashes[member] for member in members}) == 1:
         return "Exact"
 
-    max_distance = max(
-        (distance(file_a, file_b) for file_a, file_b in combinations(members, 2)),
-        default=0,
-    )
+    max_distance = max(distance(file_a, file_b) for file_a, file_b in combinations(members, 2))
     return _categorize_distance(max_distance, threshold)
 
 
@@ -86,6 +83,17 @@ def main(folder: Path, threshold: int) -> None:
     except ScanTargetError as error:
         click.echo(f"Error: {error}", err=True)
         sys.exit(1)
+
+    skipped = skipped_image_files(folder)
+    if skipped:
+        counts = Counter(path.suffix.lower() for path in skipped)
+        details = ", ".join(f"{extension}: {count}" for extension, count in sorted(counts.items()))
+        noun = "image file" if len(skipped) == 1 else "image files"
+        click.echo(
+            f"Warning: skipped {len(skipped)} {noun} in formats this tool does not read "
+            f"({details}). Only .jpg and .png are scanned.",
+            err=True,
+        )
 
     output_path = folder.resolve().parent / _report_filename(datetime.now())
     if output_path.exists():

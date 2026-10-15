@@ -98,6 +98,7 @@ def test_chain_whose_ends_are_not_similar_is_not_merged_into_one_group():
 
     groups = group_by_threshold([file_a, file_b, file_c, file_d], distance, threshold=5)
 
+    assert groups, "the chain contains matching pairs, so something must be grouped"
     for group in groups:
         assert not ({file_a, file_d} <= set(group))
 

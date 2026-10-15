@@ -1,6 +1,6 @@
 import pytest
 
-from find_duplicates.scanner import ScanTargetError, scan_folder
+from find_duplicates.scanner import ScanTargetError, scan_folder, skipped_image_files
 
 
 def test_only_supported_extensions_are_included(tmp_path):
@@ -54,3 +54,12 @@ def test_path_is_a_file_raises_scan_target_error(tmp_path):
 
     with pytest.raises(ScanTargetError):
         scan_folder(file_path)
+
+
+def test_skipped_image_files_lists_images_in_formats_that_are_not_read(tmp_path):
+    for name in ["a.jpg", "b.png", "c.jpeg", "d.heic", "E.HEIC", "notes.txt"]:
+        (tmp_path / name).write_bytes(b"bytes")
+
+    result = skipped_image_files(tmp_path)
+
+    assert {p.name for p in result} == {"c.jpeg", "d.heic", "E.HEIC"}

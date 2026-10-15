@@ -28,6 +28,24 @@ and the extension SHALL be matched case-insensitively (so `PHOTO.JPG` is support
 - **THEN** the scan completes with an empty result (not an error), and the rest of
   the pipeline proceeds to report zero duplicate groups
 
+### Requirement: Say when image files are skipped
+The system SHALL NOT silently ignore image files in a format it does not read. When
+the target folder contains files with a common image extension other than `.jpg`
+and `.png` (for example `.jpeg`, `.heic`, `.gif` or `.webp`), the system SHALL print
+a warning to the error stream saying how many such files were skipped and how many
+there were of each extension, and SHALL otherwise finish normally, with the same
+summary, report and exit status. Files that are not images (for example `.txt`) are
+skipped without a warning.
+
+#### Scenario: Image files in formats that are not read
+- **WHEN** the target folder contains `kept.jpg`, `phone.jpeg` and two `.heic` files
+- **THEN** the system prints a warning to the error stream that 3 image files were
+  skipped (`.heic`: 2, `.jpeg`: 1), and still prints the summary and exits normally
+
+#### Scenario: Only files that are not images are skipped
+- **WHEN** the target folder contains only `notes.txt`
+- **THEN** the system prints no warning
+
 ### Requirement: Report an error for an invalid target
 The system SHALL fail with a clear error message if the given path does not exist or
 is not a folder.
