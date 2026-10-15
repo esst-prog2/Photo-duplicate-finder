@@ -258,3 +258,28 @@ def test_jpeg_files_are_scanned_and_grouped_with_their_jpg_copies(tmp_path):
     assert result.exit_code == 0
     assert result.stdout.strip() == "1 exact duplicates found, 0 near-duplicate groups found."
     assert result.stderr == ""
+
+
+@pytest.mark.parametrize(
+    ("make_target", "expected_message"),
+    [
+        (lambda tmp_path: tmp_path / "does-not-exist", "Folder not found"),
+        (lambda tmp_path: _make_file(tmp_path / "photo.jpg"), "Not a folder"),
+    ],
+    ids=["path does not exist", "path is a file"],
+)
+def test_invalid_target_prints_an_error_and_writes_no_report(tmp_path, make_target, expected_message):
+    target = make_target(tmp_path)
+
+    result = CliRunner().invoke(main, [str(target)])
+
+    assert result.exit_code == 1
+    assert expected_message in result.stderr
+    assert str(target) in result.stderr
+    assert result.stdout == ""
+    assert list(tmp_path.glob("duplicates_*.xlsx")) == []
+
+
+def _make_file(path: Path) -> Path:
+    path.write_bytes(b"not a folder")
+    return path

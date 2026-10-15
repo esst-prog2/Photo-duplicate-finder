@@ -113,6 +113,3 @@ def main(folder: Path, threshold: int) -> None:
         f"{near_duplicate_group_count} near-duplicate groups found."
     )
 
-
-if __name__ == "__main__":
-    main()
