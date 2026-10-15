@@ -1,6 +1,6 @@
 import pytest
 
-from find_duplicates.scanner import ScanTargetError, scan_folder
+from find_duplicates.scanner import ScanTargetError, scan_folder, skipped_image_files
 
 
 def test_only_supported_extensions_are_included(tmp_path):
@@ -12,6 +12,16 @@ def test_only_supported_extensions_are_included(tmp_path):
     result = scan_folder(tmp_path)
 
     assert {p.name for p in result} == {"photo.jpg", "photo.png"}
+
+
+def test_extensions_are_matched_case_insensitively(tmp_path):
+    (tmp_path / "PHOTO.JPG").write_bytes(b"jpg-bytes")
+    (tmp_path / "Scan.PNG").write_bytes(b"png-bytes")
+    (tmp_path / "NOTES.TXT").write_bytes(b"text")
+
+    result = scan_folder(tmp_path)
+
+    assert {p.name for p in result} == {"PHOTO.JPG", "Scan.PNG"}
 
 
 def test_subfolder_contents_are_excluded(tmp_path):
@@ -44,3 +54,21 @@ def test_path_is_a_file_raises_scan_target_error(tmp_path):
 
     with pytest.raises(ScanTargetError):
         scan_folder(file_path)
+
+
+def test_skipped_image_files_lists_images_in_formats_that_are_not_read(tmp_path):
+    for name in ["a.jpg", "b.png", "c.gif", "d.heic", "E.HEIC", "notes.txt"]:
+        (tmp_path / name).write_bytes(b"bytes")
+
+    result = skipped_image_files(tmp_path)
+
+    assert {p.name for p in result} == {"c.gif", "d.heic", "E.HEIC"}
+
+
+def test_jpeg_extension_is_scanned_like_jpg(tmp_path):
+    for name in ["a.jpeg", "B.JPEG", "c.jpg"]:
+        (tmp_path / name).write_bytes(b"bytes")
+
+    result = scan_folder(tmp_path)
+
+    assert {p.name for p in result} == {"a.jpeg", "B.JPEG", "c.jpg"}

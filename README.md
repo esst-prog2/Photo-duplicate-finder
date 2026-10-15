@@ -11,7 +11,7 @@ writes `duplicates_20260923_1430.xlsx` next to the folder (the date and
 time of the run, so a rerun doesn't silently overwrite an earlier
 report — if that exact filename ever already exists, I'm asked to
 confirm before it's overwritten) — one table per group, listing the
-filenames in that group and a similarity score, with the suggested file
+filenames in that group and a similarity category, with the suggested file
 to keep (the largest or highest-resolution copy) highlighted. I open the
 spreadsheet and see a table for a group of four files — a burst of
 near-identical shots — with IMG_0231.jpg highlighted as "keep" and the
@@ -19,9 +19,9 @@ other three left unhighlighted.
 
 ## 2. The shape
 
-in            a folder of image files (.jpg, .png)
+in            a folder of image files (.jpg, .jpeg, .png)
 out           an Excel report: one table per duplicate/near-duplicate
-              group, listing the files in the group, a similarity score,
+              group, listing the files in the group, a similarity category,
               and a suggested file to keep (highlighted)
 in between    hash each file to catch exact duplicates; compute a
               perceptual similarity measure between remaining images to
@@ -32,7 +32,7 @@ in between    hash each file to catch exact duplicates; compute a
 ## 3. The size
 
 First useful version
-- scans a single folder (not recursive subfolders) of .jpg and .png files
+- scans a single folder (not recursive subfolders) of .jpg, .jpeg and .png files
 - detects exact duplicates via file hash
 - detects near-duplicates via a perceptual similarity measure, within a
   configurable threshold
@@ -69,3 +69,21 @@ Not this term
   photos) rather than assumed to work. Not to mention my lack of experience in the field
 - Performance on large folders (thousands of images) is untested; the
   first version is scoped to folders in the low hundreds at best.
+
+## 6. Setup and versions
+
+Tested with Python 3.11.15. Every Python package this project imports is
+pinned to an exact version in `pyproject.toml`. The three packages that
+`imagehash` pulls in on its own (numpy, scipy, PyWavelets) are not pinned;
+the benchmark test would show it if a new release of them changed the hashes.
+To set up:
+
+    python -m venv .venv
+    .venv\Scripts\python -m pip install -e ".[dev]"
+    .venv\Scripts\python -m pytest
+
+The specs under `openspec/` are managed with the OpenSpec command line tool,
+which is not a Python package: `npm install -g @fission-ai/openspec@1.13.0`
+(tested with Node 20.14.0; npm warns that one of its own dependencies prefers
+20.17 or newer, and it works anyway).
+

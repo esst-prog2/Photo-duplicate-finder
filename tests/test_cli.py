@@ -3,24 +3,34 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 from openpyxl import load_workbook
 
 from find_duplicates.cli import (
     _categorize_distance,
-    _group_similarity_score,
+    _group_similarity_category,
     _report_filename,
     main,
 )
-from find_duplicates.hashing import DEFAULT_NEAR_DUPLICATE_THRESHOLD, exact_hash, perceptual_hash
+from find_duplicates.hashing import (
+    DEFAULT_NEAR_DUPLICATE_THRESHOLD,
+    exact_hash,
+    hamming_distance,
+    perceptual_hash,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def _score_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
+def _category_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
     exact_hashes = {member: exact_hash(member) for member in members}
     perceptual_hashes = {member: perceptual_hash(member) for member in members}
-    return _group_similarity_score(members, exact_hashes, perceptual_hashes, threshold)
+
+    def distance(file_a: Path, file_b: Path) -> int:
+        return hamming_distance(perceptual_hashes[file_a], perceptual_hashes[file_b])
+
+    return _group_similarity_category(members, exact_hashes, distance, threshold)
 
 
 def test_report_filename_includes_date_and_time_to_the_minute():
@@ -29,12 +39,19 @@ def test_report_filename_includes_date_and_time_to_the_minute():
     assert _report_filename(now) == "duplicates_20260923_1405.xlsx"
 
 
-def test_empty_folder_exits_cleanly_with_zero_counts(tmp_path):
-    empty_folder = tmp_path / "photos"
-    empty_folder.mkdir()
+@pytest.mark.parametrize(
+    "other_files",
+    [[], ["notes.txt"]],
+    ids=["empty folder", "folder with no .jpg or .png"],
+)
+def test_folder_without_images_exits_cleanly_with_zero_counts(tmp_path, other_files):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    for name in other_files:
+        (folder / name).write_text("not an image")
 
     runner = CliRunner()
-    result = runner.invoke(main, [str(empty_folder)])
+    result = runner.invoke(main, [str(folder)])
 
     assert result.exit_code == 0
     assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
@@ -56,28 +73,28 @@ def test_categorize_distance_above_midpoint_is_similar():
     assert _categorize_distance(5, threshold=5) == "Similar"
 
 
-def test_group_similarity_score_for_exact_duplicates_is_exact():
+def test_group_similarity_category_for_exact_duplicates_is_exact():
     base = FIXTURES / "base.jpg"
     identical_copy = FIXTURES / "base_identical_copy.jpg"
 
-    assert _score_for([base, identical_copy]) == "Exact"
+    assert _category_for([base, identical_copy]) == "Exact"
 
 
-def test_group_similarity_score_for_resized_copy_is_very_similar():
+def test_group_similarity_category_for_resized_copy_is_very_similar():
     base = FIXTURES / "base.jpg"
     resized = FIXTURES / "base_resized.jpg"
 
-    assert _score_for([base, resized]) == "Very Similar"
+    assert _category_for([base, resized]) == "Very Similar"
 
 
-def test_group_similarity_score_for_mixed_exact_and_near_group_is_not_exact():
+def test_group_similarity_category_for_mixed_exact_and_near_group_is_not_exact():
     base = FIXTURES / "base.jpg"
     identical_copy = FIXTURES / "base_identical_copy.jpg"
     resized = FIXTURES / "base_resized.jpg"
 
     # base and identical_copy are exact duplicates, but resized only matches by
     # perceptual distance -- the group as a whole should not be labeled "Exact".
-    assert _score_for([base, identical_copy, resized]) != "Exact"
+    assert _category_for([base, identical_copy, resized]) != "Exact"
 
 
 def test_no_overwrite_prompt_when_target_filename_does_not_exist(tmp_path):
@@ -152,26 +169,136 @@ def test_full_pipeline_against_real_photo_fixtures(tmp_path):
     # (every pair among them is within the default threshold); unrelated.jpg
     # stays out, and there is exactly one group (no second, empty table).
     assert rows == [
-        ("File", "Similarity Score"),
+        ("File", "Similarity"),
         ("base.jpg", "Very Similar"),
         ("base_identical_copy.jpg", "Very Similar"),
         ("base_resized.jpg", "Very Similar"),
     ]
 
 
-def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path):
+def test_report_is_written_next_to_the_folder_even_when_given_as_current_directory(
+    tmp_path, monkeypatch
+):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    monkeypatch.chdir(folder)
+
+    result = CliRunner().invoke(main, ["."])
+
+    assert result.exit_code == 0
+    assert list(folder.glob("duplicates_*.xlsx")) == []
+    assert len(list(tmp_path.glob("duplicates_*.xlsx"))) == 1
+
+
+def test_negative_threshold_is_rejected_without_writing_a_report(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+
+    result = CliRunner().invoke(main, [str(folder), "--threshold", "-1"])
+
+    assert result.exit_code == 2
+    assert list(tmp_path.glob("duplicates_*.xlsx")) == []
+
+
+def test_several_identical_copies_count_as_one_exact_duplicate(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    for name in ["one.jpg", "two.jpg", "three.jpg"]:
+        shutil.copy(FIXTURES / "base.jpg", folder / name)
+    shutil.copy(FIXTURES / "unrelated.jpg", folder / "other.jpg")
+
+    result = CliRunner().invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == "1 exact duplicates found, 0 near-duplicate groups found."
+
+
+def test_warns_when_image_files_in_unread_formats_are_skipped(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    shutil.copy(FIXTURES / "base.jpg", folder / "kept.jpg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "phone.gif")
+    shutil.copy(FIXTURES / "base.jpg", folder / "iphone.heic")
+    shutil.copy(FIXTURES / "base.jpg", folder / "iphone2.heic")
+
+    result = CliRunner().invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert result.stdout.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
+    assert "skipped 3 image files" in result.stderr
+    assert ".heic: 2" in result.stderr
+    assert ".gif: 1" in result.stderr
+    assert "Only .jpeg, .jpg, .png are scanned." in result.stderr
+
+
+def test_no_warning_when_only_non_image_files_are_skipped(tmp_path):
     folder = tmp_path / "photos"
     folder.mkdir()
     (folder / "notes.txt").write_text("not an image")
 
-    runner = CliRunner()
-    result = runner.invoke(main, [str(folder)])
+    result = CliRunner().invoke(main, [str(folder)])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
+    assert result.stderr == ""
 
-    report_paths = list(tmp_path.glob("duplicates_*.xlsx"))
-    assert len(report_paths) == 1
-    sheet = load_workbook(report_paths[0]).active
-    assert sheet.max_row == 1
-    assert sheet.cell(row=1, column=1).value is None
+
+def test_an_empty_group_is_an_error_not_a_category():
+    with pytest.raises(ValueError):
+        _group_similarity_category([], {}, lambda file_a, file_b: 0, DEFAULT_NEAR_DUPLICATE_THRESHOLD)
+
+
+def test_jpeg_files_are_scanned_and_grouped_with_their_jpg_copies(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    shutil.copy(FIXTURES / "base.jpg", folder / "original.jpg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "copy.jpeg")
+
+    result = CliRunner().invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert result.stdout.strip() == "1 exact duplicates found, 0 near-duplicate groups found."
+    assert result.stderr == ""
+
+
+@pytest.mark.parametrize(
+    ("make_target", "expected_message"),
+    [
+        (lambda tmp_path: tmp_path / "does-not-exist", "Folder not found"),
+        (lambda tmp_path: _make_file(tmp_path / "photo.jpg"), "Not a folder"),
+    ],
+    ids=["path does not exist", "path is a file"],
+)
+def test_invalid_target_prints_an_error_and_writes_no_report(tmp_path, make_target, expected_message):
+    target = make_target(tmp_path)
+
+    result = CliRunner().invoke(main, [str(target)])
+
+    assert result.exit_code == 1
+    assert expected_message in result.stderr
+    assert str(target) in result.stderr
+    assert result.stdout == ""
+    assert list(tmp_path.glob("duplicates_*.xlsx")) == []
+
+
+def _make_file(path: Path) -> Path:
+    path.write_bytes(b"not a folder")
+    return path
+
+
+def test_a_distance_above_the_threshold_is_an_error_not_a_category():
+    with pytest.raises(ValueError):
+        _categorize_distance(9, threshold=8)
+
+
+def test_pressing_enter_at_the_overwrite_prompt_keeps_the_existing_file(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    existing_report = tmp_path / _report_filename(datetime(2026, 9, 23, 14, 5))
+    existing_report.write_text("pre-existing content")
+
+    with patch("find_duplicates.cli.datetime") as mock_datetime:
+        mock_datetime.now.return_value = datetime(2026, 9, 23, 14, 5)
+        result = CliRunner().invoke(main, [str(folder)], input="\n")
+
+    assert result.exit_code != 0
+    assert existing_report.read_text() == "pre-existing content"

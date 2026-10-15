@@ -3,7 +3,7 @@ each value, how many duplicate groups came out and how large the biggest one
 was. Does not modify the photos; only reads them.
 
 Usage:
-    python scripts/threshold_spike.py <folder> [--out spike/threshold-spike-results.csv]
+    python scripts/threshold_spike.py <folder> --out <results.csv>
 """
 
 import argparse
@@ -23,8 +23,8 @@ def main() -> None:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("spike/threshold-spike-results.csv"),
-        help="Where to write the per-threshold CSV (default: spike/threshold-spike-results.csv)",
+        required=True,
+        help="Where to write the per-threshold CSV (spike/threshold-spike-results.csv is committed evidence)",
     )
     args = parser.parse_args()
 

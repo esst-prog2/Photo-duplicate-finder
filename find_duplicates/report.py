@@ -15,14 +15,14 @@ def _keep_metric(path: Path) -> tuple[int, int]:
     return (file_size, resolution)
 
 
-def choose_keep(group: list[Path]) -> Path:
+def suggest_keep(group: list[Path]) -> Path:
     return max(group, key=_keep_metric)
 
 
 @dataclass
 class DuplicateGroup:
     members: list[Path]
-    similarity_score: str
+    similarity_category: str
     keep: Path
 
 
@@ -33,14 +33,14 @@ def write_report(groups: list[DuplicateGroup], output_path: Path) -> None:
     row = 1
     for group in groups:
         sheet.cell(row=row, column=1, value="File")
-        sheet.cell(row=row, column=2, value="Similarity Score")
+        sheet.cell(row=row, column=2, value="Similarity")
         row += 1
         for member in group.members:
             file_cell = sheet.cell(row=row, column=1, value=member.name)
-            score_cell = sheet.cell(row=row, column=2, value=group.similarity_score)
+            similarity_cell = sheet.cell(row=row, column=2, value=group.similarity_category)
             if member == group.keep:
                 file_cell.fill = KEEP_FILL
-                score_cell.fill = KEEP_FILL
+                similarity_cell.fill = KEEP_FILL
             row += 1
         row += 1
 
