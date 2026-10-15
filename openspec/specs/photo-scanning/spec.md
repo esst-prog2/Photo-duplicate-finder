@@ -8,11 +8,16 @@ pipeline (hashing, grouping, reporting) will operate on.
 
 ### Requirement: Scan a single folder for supported image files
 The system SHALL scan exactly the folder given on the command line and SHALL NOT
-descend into subfolders.
+descend into subfolders. Only files with a `.jpg` or `.png` extension are supported,
+and the extension SHALL be matched case-insensitively (so `PHOTO.JPG` is supported).
 
 #### Scenario: Folder contains supported and unsupported files
 - **WHEN** the target folder contains `.jpg`, `.png`, and other files (e.g. `.txt`, `.gif`)
 - **THEN** only the `.jpg` and `.png` files are included in the scan results
+
+#### Scenario: Extensions in capital letters
+- **WHEN** the target folder contains `PHOTO.JPG` and `Scan.PNG`
+- **THEN** both files are included in the scan results
 
 #### Scenario: Folder contains subfolders
 - **WHEN** the target folder contains a subfolder that itself contains `.jpg` files

@@ -78,7 +78,7 @@ def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
 @click.argument("folder", type=click.Path(path_type=Path))
 @click.option(
     "--threshold",
-    type=int,
+    type=click.IntRange(min=0),
     default=DEFAULT_NEAR_DUPLICATE_THRESHOLD,
     show_default=True,
     help="Maximum Hamming distance for two images to count as near-duplicates.",
@@ -90,7 +90,7 @@ def main(folder: Path, threshold: int) -> None:
         click.echo(f"Error: {error}", err=True)
         sys.exit(1)
 
-    output_path = folder.parent / _report_filename(datetime.now())
+    output_path = folder.resolve().parent / _report_filename(datetime.now())
     if output_path.exists():
         click.confirm(
             f"{output_path} already exists. Overwrite it?",

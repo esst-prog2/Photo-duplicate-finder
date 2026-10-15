@@ -100,3 +100,24 @@ def test_chain_whose_ends_are_not_similar_is_not_merged_into_one_group():
 
     for group in groups:
         assert not ({file_a, file_d} <= set(group))
+
+
+def test_file_within_threshold_of_two_dissimilar_files_joins_at_most_one_of_them():
+    # A-B and A-C are within threshold, but B-C is not. A may be grouped with B or
+    # with C, never with both, so B and C are never in the same group.
+    file_a = Path("a.jpg")
+    file_b = Path("b.jpg")
+    file_c = Path("c.jpg")
+    distance = _distance_from_table(
+        {
+            frozenset({file_a, file_b}): 3,
+            frozenset({file_a, file_c}): 3,
+            frozenset({file_b, file_c}): 9,
+        }
+    )
+
+    groups = cluster_by_threshold([file_a, file_b, file_c], distance, threshold=5)
+
+    assert len(groups) == 1
+    assert len(groups[0]) == 2
+    assert file_a in groups[0]

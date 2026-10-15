@@ -159,6 +159,30 @@ def test_full_pipeline_against_real_photo_fixtures(tmp_path):
     ]
 
 
+def test_report_is_written_next_to_the_folder_even_when_given_as_current_directory(
+    tmp_path, monkeypatch
+):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    monkeypatch.chdir(folder)
+
+    result = CliRunner().invoke(main, ["."])
+
+    assert result.exit_code == 0
+    assert list(folder.glob("duplicates_*.xlsx")) == []
+    assert len(list(tmp_path.glob("duplicates_*.xlsx"))) == 1
+
+
+def test_negative_threshold_is_rejected_without_writing_a_report(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+
+    result = CliRunner().invoke(main, [str(folder), "--threshold", "-1"])
+
+    assert result.exit_code == 2
+    assert list(tmp_path.glob("duplicates_*.xlsx")) == []
+
+
 def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path):
     folder = tmp_path / "photos"
     folder.mkdir()

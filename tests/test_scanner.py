@@ -14,6 +14,16 @@ def test_only_supported_extensions_are_included(tmp_path):
     assert {p.name for p in result} == {"photo.jpg", "photo.png"}
 
 
+def test_extensions_are_matched_case_insensitively(tmp_path):
+    (tmp_path / "PHOTO.JPG").write_bytes(b"jpg-bytes")
+    (tmp_path / "Scan.PNG").write_bytes(b"png-bytes")
+    (tmp_path / "NOTES.TXT").write_bytes(b"text")
+
+    result = scan_folder(tmp_path)
+
+    assert {p.name for p in result} == {"PHOTO.JPG", "Scan.PNG"}
+
+
 def test_subfolder_contents_are_excluded(tmp_path):
     (tmp_path / "top.jpg").write_bytes(b"top-bytes")
     subfolder = tmp_path / "nested"

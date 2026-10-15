@@ -27,32 +27,31 @@ themselves mutually similar.
 - **THEN** A and D are not reported in the same group
 
 ### Requirement: Suggest a file to keep per group
-The system SHALL suggest exactly one file to keep per duplicate group, choosing the
-file with the largest file size or highest resolution in that group.
+The system SHALL suggest exactly one file to keep per duplicate group: the file with
+the largest file size, and when several files tie on file size, the one with the
+highest resolution (width times height). The report marks the suggested file only
+by highlighting its row; the other rows are left unmarked.
 
-#### Scenario: Group with files of different sizes
-- **WHEN** a duplicate group contains files of different sizes or resolutions
-- **THEN** the largest / highest-resolution file is marked "keep" and the rest are
-  marked "duplicate"
+#### Scenario: Group with files of different file sizes
+- **WHEN** a duplicate group contains files of different file sizes
+- **THEN** the largest file is the suggested keep file, even if another file in the
+  group has a higher resolution
+
+#### Scenario: Group whose files have the same file size
+- **WHEN** a duplicate group contains files of equal file size but different
+  resolutions
+- **THEN** the highest-resolution file is the suggested keep file
 
 ### Requirement: Write an Excel report
 The system SHALL write a `duplicates_<YYYYMMDD>_<HHMM>.xlsx` file (the date and
-time the scan ran, to the minute) next to the scanned folder, containing one table
-per duplicate group on a single worksheet. Each table SHALL have a header row
-("File", "Similarity Score") followed by one row per member file in that group, and
-consecutive tables SHALL be separated by exactly one blank row. Within each table,
-the row for the suggested "keep" file SHALL be visually highlighted (fill color) to
-distinguish it from the other rows.
-
-The "Similarity Score" column SHALL show one of three category labels for the
-group, not a raw distance number:
-- `Exact`, when the group's members share an exact byte hash.
-- `Very Similar`, when the group's members do not share an exact byte hash, and
-  their perceptual-hash Hamming distance is less than or equal to half of the
-  configured near-duplicate threshold (rounded down).
-- `Similar`, when the group's members do not share an exact byte hash, and their
-  perceptual-hash Hamming distance is above half of the configured threshold but
-  within the threshold.
+time the scan ran, to the minute) next to the scanned folder, that is, in the parent
+directory of the scanned folder. The folder is resolved to an absolute path first,
+so a folder given as `.` also gets its report in its parent directory. The workbook
+SHALL contain one table per duplicate group on a single worksheet. Each table SHALL
+have a header row ("File", "Similarity Score") followed by one row per member file
+in that group, and consecutive tables SHALL be separated by exactly one blank row.
+Within each table, the row for the suggested "keep" file SHALL be visually
+highlighted (fill color) to distinguish it from the other rows.
 
 #### Scenario: Report written after a scan with duplicates
 - **WHEN** the scan finds at least one exact or near-duplicate group
@@ -65,29 +64,65 @@ group, not a raw distance number:
 - **THEN** a `duplicates_<YYYYMMDD>_<HHMM>.xlsx` file is still created, as a valid
   workbook containing no group tables
 
+#### Scenario: Folder given as the current directory
+- **WHEN** the user runs the CLI with `.` as the folder
+- **THEN** the report is created in the parent directory of the current directory,
+  not inside the scanned folder
+
+### Requirement: Label each group with a similarity category
+The "Similarity Score" column SHALL show one of three category labels for the
+group, not a raw distance number:
+- `Exact`, when all of the group's members share one exact byte hash.
+- `Very Similar`, when the group's members do not all share one exact byte hash,
+  and the largest perceptual-hash Hamming distance between any two of its members
+  is less than or equal to half of the configured near-duplicate threshold
+  (rounded down).
+- `Similar`, when the group's members do not all share one exact byte hash, and
+  that largest pairwise distance is above half of the configured threshold but
+  within the threshold.
+
 #### Scenario: Exact-duplicate group is labeled Exact
-- **WHEN** a duplicate group's members share an exact byte hash
+- **WHEN** all of a duplicate group's members share one exact byte hash
 - **THEN** the group's Similarity Score column shows `Exact`
 
+#### Scenario: A group that mixes exact duplicates with a merely similar file is not Exact
+- **WHEN** a duplicate group contains two byte-identical files and a third file
+  that is only perceptually similar
+- **THEN** the group's Similarity Score column does not show `Exact`; it shows
+  `Very Similar` or `Similar` according to the largest pairwise distance
+
 #### Scenario: Near-duplicate group within the lower half of the threshold is labeled Very Similar
-- **WHEN** a duplicate group's members do not share an exact byte hash, and their
-  perceptual-hash Hamming distance is at or below half of the configured threshold
+- **WHEN** a duplicate group's members do not all share one exact byte hash, and
+  the largest perceptual-hash Hamming distance between any two of them is at or
+  below half of the configured threshold
 - **THEN** the group's Similarity Score column shows `Very Similar`
 
 #### Scenario: Near-duplicate group in the upper half of the threshold is labeled Similar
-- **WHEN** a duplicate group's members do not share an exact byte hash, and their
-  perceptual-hash Hamming distance is above half of the configured threshold but
-  within the threshold
+- **WHEN** a duplicate group's members do not all share one exact byte hash, and
+  the largest perceptual-hash Hamming distance between any two of them is above
+  half of the configured threshold but within the threshold
 - **THEN** the group's Similarity Score column shows `Similar`
 
 ### Requirement: Print a summary count
 The system SHALL print a one-line summary after scanning, stating the number of
-exact duplicates found and the number of near-duplicate groups found.
+exact duplicates found and the number of near-duplicate groups found. "Exact
+duplicates found" is the number of sets of two or more byte-identical files,
+counted independently of the threshold. "Near-duplicate groups found" is the number
+of reported groups whose members are not all byte-identical. A reported group that
+contains both a byte-identical pair and a merely similar file is counted in both
+numbers, so the two numbers do not necessarily add up to the number of tables in
+the report.
 
 #### Scenario: Summary reflects scan results
 - **WHEN** a scan completes
 - **THEN** the system prints a summary line with the exact-duplicate count and the
   near-duplicate group count from that scan
+
+#### Scenario: One group that is counted in both numbers
+- **WHEN** the folder holds a photo, a byte-identical copy of it, and a resized
+  copy of it
+- **THEN** the summary reads "1 exact duplicates found, 1 near-duplicate groups
+  found." while the report contains a single table
 
 ### Requirement: Warn before overwriting an existing report file
 The system SHALL check, before writing the report, whether a file already exists at
