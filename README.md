@@ -69,3 +69,21 @@ Not this term
   photos) rather than assumed to work. Not to mention my lack of experience in the field
 - Performance on large folders (thousands of images) is untested; the
   first version is scoped to folders in the low hundreds at best.
+
+## 6. Setup and versions
+
+Tested with Python 3.11.15. Every Python package this project imports is
+pinned to an exact version in `pyproject.toml`. The three packages that
+`imagehash` pulls in on its own (numpy, scipy, PyWavelets) are not pinned;
+the benchmark test would show it if a new release of them changed the hashes.
+To set up:
+
+    python -m venv .venv
+    .venv\Scripts\python -m pip install -e ".[dev]"
+    .venv\Scripts\python -m pytest
+
+The specs under `openspec/` are managed with the OpenSpec command line tool,
+which is not a Python package: `npm install -g @fission-ai/openspec@1.13.0`
+(tested with Node 20.14.0; npm warns that one of its own dependencies prefers
+20.17 or newer, and it works anyway).
+
