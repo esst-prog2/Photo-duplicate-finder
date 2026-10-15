@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 from openpyxl import load_workbook
 
@@ -12,7 +13,12 @@ from find_duplicates.cli import (
     _report_filename,
     main,
 )
-from find_duplicates.hashing import DEFAULT_NEAR_DUPLICATE_THRESHOLD, exact_hash, perceptual_hash
+from find_duplicates.hashing import (
+    DEFAULT_NEAR_DUPLICATE_THRESHOLD,
+    exact_hash,
+    hamming_distance,
+    perceptual_hash,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -20,7 +26,11 @@ FIXTURES = Path(__file__).parent / "fixtures"
 def _category_for(members: list[Path], threshold: int = DEFAULT_NEAR_DUPLICATE_THRESHOLD) -> str:
     exact_hashes = {member: exact_hash(member) for member in members}
     perceptual_hashes = {member: perceptual_hash(member) for member in members}
-    return _group_similarity_category(members, exact_hashes, perceptual_hashes, threshold)
+
+    def distance(file_a: Path, file_b: Path) -> int:
+        return hamming_distance(perceptual_hashes[file_a], perceptual_hashes[file_b])
+
+    return _group_similarity_category(members, exact_hashes, distance, threshold)
 
 
 def test_report_filename_includes_date_and_time_to_the_minute():
@@ -29,12 +39,19 @@ def test_report_filename_includes_date_and_time_to_the_minute():
     assert _report_filename(now) == "duplicates_20260923_1405.xlsx"
 
 
-def test_empty_folder_exits_cleanly_with_zero_counts(tmp_path):
-    empty_folder = tmp_path / "photos"
-    empty_folder.mkdir()
+@pytest.mark.parametrize(
+    "other_files",
+    [[], ["notes.txt"]],
+    ids=["empty folder", "folder with no .jpg or .png"],
+)
+def test_folder_without_images_exits_cleanly_with_zero_counts(tmp_path, other_files):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    for name in other_files:
+        (folder / name).write_text("not an image")
 
     runner = CliRunner()
-    result = runner.invoke(main, [str(empty_folder)])
+    result = runner.invoke(main, [str(folder)])
 
     assert result.exit_code == 0
     assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
@@ -183,19 +200,14 @@ def test_negative_threshold_is_rejected_without_writing_a_report(tmp_path):
     assert list(tmp_path.glob("duplicates_*.xlsx")) == []
 
 
-def test_folder_with_no_matching_images_exits_cleanly_with_zero_counts(tmp_path):
+def test_several_identical_copies_count_as_one_exact_duplicate(tmp_path):
     folder = tmp_path / "photos"
     folder.mkdir()
-    (folder / "notes.txt").write_text("not an image")
+    for name in ["one.jpg", "two.jpg", "three.jpg"]:
+        shutil.copy(FIXTURES / "base.jpg", folder / name)
+    shutil.copy(FIXTURES / "unrelated.jpg", folder / "other.jpg")
 
-    runner = CliRunner()
-    result = runner.invoke(main, [str(folder)])
+    result = CliRunner().invoke(main, [str(folder)])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
-
-    report_paths = list(tmp_path.glob("duplicates_*.xlsx"))
-    assert len(report_paths) == 1
-    sheet = load_workbook(report_paths[0]).active
-    assert sheet.max_row == 1
-    assert sheet.cell(row=1, column=1).value is None
+    assert result.output.strip() == "1 exact duplicates found, 0 near-duplicate groups found."

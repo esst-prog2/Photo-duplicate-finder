@@ -121,3 +121,12 @@ def test_file_within_threshold_of_two_dissimilar_files_joins_at_most_one_of_them
     assert len(groups) == 1
     assert len(groups[0]) == 2
     assert file_a in groups[0]
+
+
+def test_threshold_decides_whether_two_files_are_grouped():
+    file_a = Path("a.jpg")
+    file_b = Path("b.jpg")
+    distance = _distance_from_table({frozenset({file_a, file_b}): 3})
+
+    assert len(group_by_threshold([file_a, file_b], distance, threshold=5)) == 1
+    assert group_by_threshold([file_a, file_b], distance, threshold=2) == []

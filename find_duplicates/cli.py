@@ -1,16 +1,16 @@
 import sys
+from collections import Counter
+from collections.abc import Callable
 from datetime import datetime
 from itertools import combinations
 from pathlib import Path
 
 import click
-import imagehash
 
 from find_duplicates.grouping import group_by_threshold
 from find_duplicates.hashing import (
     DEFAULT_NEAR_DUPLICATE_THRESHOLD,
     exact_hash,
-    group_by_exact_hash,
     hamming_distance,
     perceptual_hash,
 )
@@ -25,17 +25,14 @@ def _categorize_distance(distance: int, threshold: int) -> str:
 def _group_similarity_category(
     members: list[Path],
     exact_hashes: dict[Path, str],
-    perceptual_hashes: dict[Path, imagehash.ImageHash],
+    distance: Callable[[Path, Path], int],
     threshold: int,
 ) -> str:
     if len({exact_hashes[member] for member in members}) == 1:
         return "Exact"
 
     max_distance = max(
-        (
-            hamming_distance(perceptual_hashes[members[i]], perceptual_hashes[members[j]])
-            for i, j in combinations(range(len(members)), 2)
-        ),
+        (distance(file_a, file_b) for file_a, file_b in combinations(members, 2)),
         default=0,
     )
     return _categorize_distance(max_distance, threshold)
@@ -55,12 +52,12 @@ def run(folder: Path, threshold: int) -> tuple[int, int, list[DuplicateGroup]]:
         return hamming_distance(perceptual_hashes[file_a], perceptual_hashes[file_b])
 
     groups = group_by_threshold(files, distance, threshold)
-    exact_group_count = len(group_by_exact_hash(files))
+    exact_group_count = sum(1 for count in Counter(exact_hashes.values()).values() if count > 1)
 
     duplicate_groups = []
     near_duplicate_group_count = 0
     for members in groups:
-        category = _group_similarity_category(members, exact_hashes, perceptual_hashes, threshold)
+        category = _group_similarity_category(members, exact_hashes, distance, threshold)
         if category != "Exact":
             near_duplicate_group_count += 1
         duplicate_groups.append(
