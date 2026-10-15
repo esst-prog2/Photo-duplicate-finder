@@ -10,11 +10,16 @@ def exact_hash(path: Path) -> str:
 
 
 PERCEPTUAL_HASH_SIZE = 7
+PERCEPTUAL_HASH_HIGHFREQ_FACTOR = 4
 
 
 def perceptual_hash(path: Path) -> imagehash.ImageHash:
     with Image.open(path) as img:
-        return imagehash.phash(ImageOps.exif_transpose(img), hash_size=PERCEPTUAL_HASH_SIZE)
+        return imagehash.phash(
+            ImageOps.exif_transpose(img),
+            hash_size=PERCEPTUAL_HASH_SIZE,
+            highfreq_factor=PERCEPTUAL_HASH_HIGHFREQ_FACTOR,
+        )
 
 
 def hamming_distance(hash_a: imagehash.ImageHash, hash_b: imagehash.ImageHash) -> int:

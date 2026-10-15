@@ -24,6 +24,8 @@ from find_duplicates.scanner import (
 
 
 def _categorize_distance(distance: int, threshold: int) -> str:
+    if distance > threshold:
+        raise ValueError(f"distance {distance} is above the threshold {threshold}, so it cannot be in a group")
     return "Very Similar" if distance <= threshold // 2 else "Similar"
 
 
@@ -105,6 +107,7 @@ def main(folder: Path, threshold: int) -> None:
     if output_path.exists():
         click.confirm(
             f"{output_path} already exists. Overwrite it?",
+            default=False,
             abort=True,
         )
     write_report(duplicate_groups, output_path)

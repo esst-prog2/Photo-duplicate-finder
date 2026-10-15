@@ -283,3 +283,22 @@ def test_invalid_target_prints_an_error_and_writes_no_report(tmp_path, make_targ
 def _make_file(path: Path) -> Path:
     path.write_bytes(b"not a folder")
     return path
+
+
+def test_a_distance_above_the_threshold_is_an_error_not_a_category():
+    with pytest.raises(ValueError):
+        _categorize_distance(9, threshold=8)
+
+
+def test_pressing_enter_at_the_overwrite_prompt_keeps_the_existing_file(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    existing_report = tmp_path / _report_filename(datetime(2026, 9, 23, 14, 5))
+    existing_report.write_text("pre-existing content")
+
+    with patch("find_duplicates.cli.datetime") as mock_datetime:
+        mock_datetime.now.return_value = datetime(2026, 9, 23, 14, 5)
+        result = CliRunner().invoke(main, [str(folder)], input="\n")
+
+    assert result.exit_code != 0
+    assert existing_report.read_text() == "pre-existing content"

@@ -129,6 +129,7 @@ The system SHALL check, before writing the report, whether a file already exists
 the timestamped output path. If one exists, the system SHALL warn the user and ask
 for confirmation before overwriting it. If the user declines, the system SHALL
 abort without writing the report and without producing a partial or corrupted file.
+An empty answer (just pressing Enter) SHALL count as declining.
 
 #### Scenario: Target filename does not exist
 - **WHEN** no file exists at the timestamped output path
@@ -144,3 +145,9 @@ abort without writing the report and without producing a partial or corrupted fi
   declines the overwrite prompt
 - **THEN** the system exits without writing the report, and the existing file is
   left unchanged
+
+#### Scenario: The user presses Enter without answering
+- **WHEN** a file already exists at the timestamped output path, and the user
+  presses Enter at the overwrite prompt without typing an answer
+- **THEN** the system treats it as declining: it exits without writing the report,
+  and the existing file is left unchanged
