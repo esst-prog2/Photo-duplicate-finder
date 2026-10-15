@@ -57,9 +57,18 @@ def test_path_is_a_file_raises_scan_target_error(tmp_path):
 
 
 def test_skipped_image_files_lists_images_in_formats_that_are_not_read(tmp_path):
-    for name in ["a.jpg", "b.png", "c.jpeg", "d.heic", "E.HEIC", "notes.txt"]:
+    for name in ["a.jpg", "b.png", "c.gif", "d.heic", "E.HEIC", "notes.txt"]:
         (tmp_path / name).write_bytes(b"bytes")
 
     result = skipped_image_files(tmp_path)
 
-    assert {p.name for p in result} == {"c.jpeg", "d.heic", "E.HEIC"}
+    assert {p.name for p in result} == {"c.gif", "d.heic", "E.HEIC"}
+
+
+def test_jpeg_extension_is_scanned_like_jpg(tmp_path):
+    for name in ["a.jpeg", "B.JPEG", "c.jpg"]:
+        (tmp_path / name).write_bytes(b"bytes")
+
+    result = scan_folder(tmp_path)
+
+    assert {p.name for p in result} == {"a.jpeg", "B.JPEG", "c.jpg"}

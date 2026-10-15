@@ -19,7 +19,7 @@ other three left unhighlighted.
 
 ## 2. The shape
 
-in            a folder of image files (.jpg, .png)
+in            a folder of image files (.jpg, .jpeg, .png)
 out           an Excel report: one table per duplicate/near-duplicate
               group, listing the files in the group, a similarity category,
               and a suggested file to keep (highlighted)
@@ -32,7 +32,7 @@ in between    hash each file to catch exact duplicates; compute a
 ## 3. The size
 
 First useful version
-- scans a single folder (not recursive subfolders) of .jpg and .png files
+- scans a single folder (not recursive subfolders) of .jpg, .jpeg and .png files
 - detects exact duplicates via file hash
 - detects near-duplicates via a perceptual similarity measure, within a
   configurable threshold

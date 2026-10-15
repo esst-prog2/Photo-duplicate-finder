@@ -217,7 +217,7 @@ def test_warns_when_image_files_in_unread_formats_are_skipped(tmp_path):
     folder = tmp_path / "photos"
     folder.mkdir()
     shutil.copy(FIXTURES / "base.jpg", folder / "kept.jpg")
-    shutil.copy(FIXTURES / "base.jpg", folder / "phone.jpeg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "phone.gif")
     shutil.copy(FIXTURES / "base.jpg", folder / "iphone.heic")
     shutil.copy(FIXTURES / "base.jpg", folder / "iphone2.heic")
 
@@ -227,7 +227,8 @@ def test_warns_when_image_files_in_unread_formats_are_skipped(tmp_path):
     assert result.stdout.strip() == "0 exact duplicates found, 0 near-duplicate groups found."
     assert "skipped 3 image files" in result.stderr
     assert ".heic: 2" in result.stderr
-    assert ".jpeg: 1" in result.stderr
+    assert ".gif: 1" in result.stderr
+    assert "Only .jpeg, .jpg, .png are scanned." in result.stderr
 
 
 def test_no_warning_when_only_non_image_files_are_skipped(tmp_path):
@@ -244,3 +245,16 @@ def test_no_warning_when_only_non_image_files_are_skipped(tmp_path):
 def test_an_empty_group_is_an_error_not_a_category():
     with pytest.raises(ValueError):
         _group_similarity_category([], {}, lambda file_a, file_b: 0, DEFAULT_NEAR_DUPLICATE_THRESHOLD)
+
+
+def test_jpeg_files_are_scanned_and_grouped_with_their_jpg_copies(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    shutil.copy(FIXTURES / "base.jpg", folder / "original.jpg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "copy.jpeg")
+
+    result = CliRunner().invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert result.stdout.strip() == "1 exact duplicates found, 0 near-duplicate groups found."
+    assert result.stderr == ""

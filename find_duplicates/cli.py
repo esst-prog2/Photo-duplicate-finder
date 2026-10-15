@@ -15,7 +15,12 @@ from find_duplicates.hashing import (
     perceptual_hash,
 )
 from find_duplicates.report import DuplicateGroup, suggest_keep, write_report
-from find_duplicates.scanner import ScanTargetError, scan_folder, skipped_image_files
+from find_duplicates.scanner import (
+    SUPPORTED_EXTENSIONS,
+    ScanTargetError,
+    scan_folder,
+    skipped_image_files,
+)
 
 
 def _categorize_distance(distance: int, threshold: int) -> str:
@@ -89,9 +94,10 @@ def main(folder: Path, threshold: int) -> None:
         counts = Counter(path.suffix.lower() for path in skipped)
         details = ", ".join(f"{extension}: {count}" for extension, count in sorted(counts.items()))
         noun = "image file" if len(skipped) == 1 else "image files"
+        scanned = ", ".join(sorted(SUPPORTED_EXTENSIONS))
         click.echo(
             f"Warning: skipped {len(skipped)} {noun} in formats this tool does not read "
-            f"({details}). Only .jpg and .png are scanned.",
+            f"({details}). Only {scanned} are scanned.",
             err=True,
         )
 

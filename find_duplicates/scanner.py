@@ -1,7 +1,7 @@
 from pathlib import Path
 
-SUPPORTED_EXTENSIONS = {".jpg", ".png"}
-UNREAD_IMAGE_EXTENSIONS = {".jpeg", ".heic", ".heif", ".gif", ".bmp", ".tif", ".tiff", ".webp"}
+SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+UNREAD_IMAGE_EXTENSIONS = {".heic", ".heif", ".gif", ".bmp", ".tif", ".tiff", ".webp"}
 
 
 class ScanTargetError(Exception):
