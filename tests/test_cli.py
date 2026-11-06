@@ -302,3 +302,35 @@ def test_pressing_enter_at_the_overwrite_prompt_keeps_the_existing_file(tmp_path
 
     assert result.exit_code != 0
     assert existing_report.read_text() == "pre-existing content"
+
+
+@pytest.mark.parametrize(
+    ("ab", "ac", "bc", "expected"),
+    [
+        (7, 1, 2, "Similar"),
+        (1, 7, 2, "Similar"),
+        (1, 2, 7, "Similar"),
+        (1, 2, 4, "Very Similar"),
+    ],
+    ids=[
+        "largest is the first pair",
+        "largest is the middle pair",
+        "largest is the last pair",
+        "largest sits exactly on half the threshold",
+    ],
+)
+def test_group_category_follows_the_largest_distance_between_any_two_members(ab, ac, bc, expected):
+    # Made-up distances instead of photos, so the numbers are known by hand. With
+    # threshold 8 the halfway point is 4: a largest distance of 7 must read
+    # "Similar", and 4 must still read "Very Similar". The smallest, the average,
+    # the first pair alone, the last pair alone and the sum would each get at
+    # least one of these wrong.
+    a, b, c = Path("a.jpg"), Path("b.jpg"), Path("c.jpg")
+    table = {frozenset({a, b}): ab, frozenset({a, c}): ac, frozenset({b, c}): bc}
+    exact_hashes = {a: "hash-a", b: "hash-b", c: "hash-c"}
+
+    category = _group_similarity_category(
+        [a, b, c], exact_hashes, lambda x, y: table[frozenset({x, y})], threshold=8
+    )
+
+    assert category == expected
