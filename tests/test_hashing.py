@@ -10,6 +10,7 @@ from find_duplicates.hashing import (
 )
 
 FIXTURES = Path(__file__).parent / "fixtures"
+BENCHMARK_DATA = Path(__file__).parent.parent / "benchmark" / "data"
 
 
 def test_identical_copy_hashes_equal_to_base():
@@ -73,7 +74,12 @@ def test_photo_stored_with_an_orientation_tag_hashes_like_the_upright_photo(tmp_
 def test_perceptual_hash_of_the_fixture_photos_has_not_silently_changed():
     # A snapshot, not a proof of correctness: it records what the current settings
     # (algorithm, hash size and the library's own defaults) produce. If a library
-    # upgrade or a changed default alters the hashes, this fails and says so,
+    # upgrade or a changed setting alters the hashes, this fails and says so,
     # instead of the groups quietly changing.
     assert str(perceptual_hash(FIXTURES / "base.jpg")) == "1d34ca8b48d9a"
     assert str(perceptual_hash(FIXTURES / "unrelated.jpg")) == "10f97c5a1e852"
+    # For most photos the library's highfreq_factor setting makes no difference, so
+    # the two photos above cannot see it. These two are among the few whose hash
+    # changes when it is 3 or 5 instead of 4.
+    assert str(perceptual_hash(BENCHMARK_DATA / "p04_orig.jpg")) == "1b3c9af03e08c"
+    assert str(perceptual_hash(BENCHMARK_DATA / "p05_orig.jpg")) == "19a4991dab8a5"

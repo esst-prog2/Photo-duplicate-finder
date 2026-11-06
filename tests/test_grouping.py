@@ -131,3 +131,13 @@ def test_threshold_decides_whether_two_files_are_grouped():
 
     assert len(group_by_threshold([file_a, file_b], distance, threshold=5)) == 1
     assert group_by_threshold([file_a, file_b], distance, threshold=2) == []
+
+
+def test_a_distance_exactly_at_the_threshold_still_groups():
+    file_a = Path("a.jpg")
+    file_b = Path("b.jpg")
+    distance = _distance_from_table({frozenset({file_a, file_b}): 5})
+
+    groups = group_by_threshold([file_a, file_b], distance, threshold=5)
+
+    assert len(groups) == 1
