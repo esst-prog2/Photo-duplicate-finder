@@ -334,3 +334,36 @@ def test_group_category_follows_the_largest_distance_between_any_two_members(ab,
     )
 
     assert category == expected
+
+
+def test_warning_says_image_file_in_the_singular_for_one_skipped_file(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    shutil.copy(FIXTURES / "base.jpg", folder / "kept.jpg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "iphone.heic")
+
+    result = CliRunner().invoke(main, [str(folder)])
+
+    assert result.exit_code == 0
+    assert "skipped 1 image file in formats" in result.stderr
+
+
+def test_help_shows_the_default_threshold():
+    # 8 is the default that was chosen and logged on 2026-10-03. The number is
+    # written out here on purpose, so changing it has to be a decision.
+    result = CliRunner().invoke(main, ["--help"])
+
+    assert "default: 8" in result.output
+
+
+def test_threshold_zero_is_accepted(tmp_path):
+    folder = tmp_path / "photos"
+    folder.mkdir()
+    shutil.copy(FIXTURES / "base.jpg", folder / "one.jpg")
+    shutil.copy(FIXTURES / "base.jpg", folder / "two.jpg")
+    shutil.copy(FIXTURES / "unrelated.jpg", folder / "other.jpg")
+
+    result = CliRunner().invoke(main, [str(folder), "--threshold", "0"])
+
+    assert result.exit_code == 0
+    assert result.stdout.strip() == "1 exact duplicates found, 0 near-duplicate groups found."

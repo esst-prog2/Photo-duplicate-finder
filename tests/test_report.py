@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from openpyxl import load_workbook
 from PIL import Image
 
@@ -38,21 +39,34 @@ def test_largest_file_size_wins_even_with_lower_resolution(tmp_path):
     assert suggest_keep([small_path, large_path]) == small_path
 
 
-def test_tie_break_by_resolution_when_file_sizes_are_equal(tmp_path):
-    small = Image.new("RGB", (50, 50), color=(10, 20, 30))
-    large = Image.new("RGB", (200, 200), color=(10, 20, 30))
-    small_path = tmp_path / "small.png"
-    large_path = tmp_path / "large.png"
-    small.save(small_path)
-    large.save(large_path)
+def _images_with_equal_file_size(tmp_path, size_a, size_b):
+    a, b = tmp_path / "a.png", tmp_path / "b.png"
+    Image.new("RGB", size_a, color=(10, 20, 30)).save(a)
+    Image.new("RGB", size_b, color=(10, 20, 30)).save(b)
+    smaller, larger = sorted((a, b), key=lambda path: path.stat().st_size)
+    with open(smaller, "ab") as f:
+        f.write(b"\x00" * (larger.stat().st_size - smaller.stat().st_size))
+    assert a.stat().st_size == b.stat().st_size
+    return a, b
 
-    size_diff = large_path.stat().st_size - small_path.stat().st_size
-    assert size_diff >= 0
-    with open(small_path, "ab") as f:
-        f.write(b"\x00" * size_diff)
-    assert small_path.stat().st_size == large_path.stat().st_size
 
-    assert suggest_keep([small_path, large_path]) == large_path
+@pytest.mark.parametrize(
+    ("size_a", "size_b", "expected"),
+    [
+        ((50, 50), (200, 200), "b"),
+        ((100, 10), (40, 40), "b"),
+        ((300, 1), (10, 10), "a"),
+    ],
+    ids=[
+        "square against a bigger square",
+        "area 1000 against 1600 (width plus height would pick the wrong one)",
+        "area 300 against 100 (power, shift and bitwise versions would pick the wrong one)",
+    ],
+)
+def test_tie_break_by_resolution_is_width_times_height(tmp_path, size_a, size_b, expected):
+    a, b = _images_with_equal_file_size(tmp_path, size_a, size_b)
+
+    assert suggest_keep([a, b]) == {"a": a, "b": b}[expected]
 
 
 def test_write_report_writes_one_table_per_group_with_blank_row_between(tmp_path):
@@ -105,3 +119,20 @@ def test_write_report_with_no_groups_creates_valid_empty_workbook(tmp_path):
     sheet = load_workbook(output_path).active
     assert sheet.max_row == 1
     assert sheet.cell(row=1, column=1).value is None
+
+
+@pytest.mark.parametrize("keep_index", [0, 1, 2], ids=["first member", "middle member", "last member"])
+def test_only_the_keep_row_is_highlighted_in_a_group_of_three(tmp_path, keep_index):
+    members = [FIXTURES / "base.jpg", FIXTURES / "base_resized.jpg", FIXTURES / "unrelated.jpg"]
+    group = DuplicateGroup(members=members, similarity_category="Similar", keep=members[keep_index])
+    output_path = tmp_path / "duplicates.xlsx"
+
+    write_report([group], output_path)
+
+    sheet = load_workbook(output_path).active
+    highlighted = [
+        row
+        for row in (2, 3, 4)
+        if sheet.cell(row=row, column=1).fill.start_color.rgb == KEEP_FILL.start_color.rgb
+    ]
+    assert highlighted == [2 + keep_index]
