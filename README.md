@@ -5,17 +5,39 @@
 
 ## 1. The demo
 
-I run `find-duplicates photos/` in a terminal. It scans x images and
-prints: "3 exact duplicates found, 5 near-duplicate groups found." It
-writes `duplicates_20260923_1430.xlsx` next to the folder (the date and
-time of the run, so a rerun doesn't silently overwrite an earlier
-report — if that exact filename ever already exists, I'm asked to
-confirm before it's overwritten) — one table per group, listing the
-filenames in that group and a similarity category, with the suggested file
-to keep (the largest or highest-resolution copy) highlighted. I open the
-spreadsheet and see a table for a group of four files — a burst of
-near-identical shots — with IMG_0231.jpg highlighted as "keep" and the
-other three left unhighlighted.
+I run `find-duplicates photos/` in a terminal. The folder holds a photo,
+IMG_0231.jpg, and three copies of it: a byte-identical copy, a copy resized
+smaller, and a copy saved again at lower quality. The tool reads the .jpg,
+.jpeg and .png files in that folder (not in its subfolders) and prints one
+line:
+
+    1 exact duplicates found, 1 near-duplicate groups found.
+
+That is one group, counted twice. "Exact duplicates" counts the sets of
+files that are byte-for-byte identical (here the photo and its copy), and
+"near-duplicate groups" counts the reported groups whose files are not all
+byte-identical (here all four). A group that mixes both kinds is counted in
+both numbers, so the two numbers do not add up to the number of tables in
+the report.
+
+It writes `duplicates_20260923_1430.xlsx` next to the folder (the date and
+time of the run, so a rerun doesn't silently overwrite an earlier report —
+if that exact name already exists I'm asked to confirm, and pressing Enter
+means no). I open the spreadsheet and see one table per group. This one
+lists the four files with a "Similarity" column, which says Exact when all
+the files are byte-identical and otherwise Very Similar or Similar, and has
+IMG_0231.jpg highlighted as the file to keep; the other three rows are left
+unhighlighted. The file to keep is the one with the largest file size.
+Resolution only decides between files of equal size, and between files that
+are equal in both, the one that comes first by name wins (which is why the
+original and not its identical copy is highlighted).
+
+Two more things the tool does. If the folder holds photos in a format it
+does not read (for example .heic), a warning on the error stream says how
+many were skipped, instead of a silently empty result. And `--threshold N`
+sets how alike two photos must look to be grouped: 0 means only photos that
+look identical, larger values group looser matches, and the default is 8.
+Very large values lump unrelated photos together.
 
 ## 2. The shape
 
