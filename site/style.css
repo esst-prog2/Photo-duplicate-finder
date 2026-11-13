@@ -151,6 +151,12 @@ h1 {
   color: var(--ink-soft);
 }
 
+/* hierarchy: the grouped frames carry the eye, the rest step back */
+.frame img { filter: saturate(0.58) brightness(0.82); }
+.frames-inner .frame img { filter: none; }
+.frame .edge { opacity: 0.832; }
+.frames-inner .edge { opacity: 1; font-weight: 700; }
+
 /* command as edge print */
 .command {
   max-width: 78rem;
