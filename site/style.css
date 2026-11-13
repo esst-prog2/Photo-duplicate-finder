@@ -10,7 +10,7 @@
   --amber: #f2a900;
   --keep: #ffff00;
   --gutter: 16px;
-  --measure: 68ch;
+  --measure: 46ch;
   --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --edge: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -46,6 +46,7 @@ a { color: var(--ink); text-underline-offset: 0.2em; text-decoration-thickness: 
 a:hover { text-decoration-color: var(--ink); }
 
 code { font-family: var(--edge); font-size: 0.9em; font-variant-numeric: tabular-nums; }
+.prose code { white-space: nowrap; }
 
 /* top bar */
 .top {
@@ -75,7 +76,7 @@ code { font-family: var(--edge); font-size: 0.9em; font-variant-numeric: tabular
 h1 {
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(2.25rem, 7.2vw, 5.25rem);
+  font-size: clamp(2.25rem, 6vw, 4rem);
   line-height: 1;
   letter-spacing: -0.015em;
   margin: 0 0 20px;
@@ -303,4 +304,40 @@ h2 {
   .frames-inner { flex-direction: column; gap: 14px; border-radius: 34px 40px 36px 38px / 30px 34px 38px 36px; padding: 14px 16px 10px; }
   :root { --frame-h: 120px; }
   .frame img { height: var(--frame-h); }
+}
+
+/* line breaks */
+p, li, dd { text-wrap: pretty; }
+h2, h3 { text-wrap: balance; }
+.nb { white-space: nowrap; }
+
+/* limits: a film-black band, the page's honest centre */
+.limits {
+  max-width: none;
+  margin-top: 56px;
+  background: var(--film);
+  color: var(--box);
+  padding: 56px var(--gutter) 64px;
+}
+.limits h2 { border-top-color: var(--amber); color: var(--box); }
+.limits-lead { max-width: 46ch; margin: 0 0 40px; font-size: 1.25rem; }
+.limits-grid { display: grid; gap: 28px; }
+.limit { border-top: 1px solid #5a5a5a; padding-top: 14px; }
+.limit h3 {
+  margin: 0 0 6px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  color: var(--amber);
+}
+.limit p { margin: 0; max-width: 40ch; }
+@media (min-width: 720px) {
+  .limits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 40px; }
+}
+@media (min-width: 1100px) {
+  .limits-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+}
+@media (min-width: 1248px) {
+  .limits { padding-inline: calc((100vw - 78rem) / 2 + var(--gutter)); }
 }
