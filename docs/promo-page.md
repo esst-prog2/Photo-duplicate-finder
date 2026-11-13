@@ -2,7 +2,7 @@
 
 **Point it at a folder of photos and it finds about three quarters of the look-alikes, and every group it makes is right.**
 
-It compares what pictures look like, not what they are called. You get one Excel report with a table for each group of look-alikes and the best copy already highlighted.
+It compares what pictures look like, not what they are called. You get one Excel report with a table for each group of look-alikes and the best copy already highlighted. The “about three quarters” was measured on one folder of the author's own photos, not promised for yours.
 
 ## The result
 
