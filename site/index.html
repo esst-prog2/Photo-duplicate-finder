@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Duplicate Finder</title>
+<meta name="description" content="A command-line tool that groups look-alike photos from a folder and writes one Excel table per group, with the best copy highlighted.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="#top">Photo Duplicate Finder</a>
+  <nav aria-label="Page sections">
+    <a href="#result">Result</a>
+    <a href="#proof">Proof</a>
+    <a href="#limits">Limits</a>
+    <a href="#try">Try it</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="headline">
+  <div class="hero-copy">
+    <h1 id="headline">Point it at a folder of photos and it finds about three quarters of the look-alikes, and every group it makes is right.</h1>
+    <p class="lede">It compares what pictures look like, not what they are called. You get one Excel report with a table for each group of look-alikes and the best copy already highlighted.</p>
+  </div>
+
+  <figure class="strip-wrap">
+    <div class="strip" role="group" aria-label="Six photos on a film strip; frames 3 to 5 are circled as one group">
+      <ol class="frames">
+        <li class="frame">
+            <img src="../benchmark/data/p01_orig.jpg" width="571" height="428" alt="A white van parked in front of hills at dusk">
+            <span class="edge"><b>01</b> p01_orig.jpg</span>
+          </li>
+        <li class="frame">
+            <img src="../benchmark/data/p07_orig.jpg" width="571" height="428" alt="A pond seen past a white bridge railing, with trees beyond">
+            <span class="edge"><b>02</b> p07_orig.jpg</span>
+          </li>
+        <li class="group" role="group" aria-label="Frames 3 to 5, circled as one group">
+          <ol class="frames-inner">
+          <li class="frame">
+            <img src="../benchmark/data/p05_orig.jpg" width="571" height="428" alt="Sunset over a wheat field">
+            <span class="edge"><b>03</b> p05_orig.jpg</span>
+          </li>
+          <li class="frame">
+            <img src="../benchmark/data/p05_resized.jpg" width="400" height="300" alt="The same sunset over a wheat field, saved smaller">
+            <span class="edge"><b>04</b> p05_resized.jpg</span>
+          </li>
+          <li class="frame">
+            <img src="../benchmark/data/p05_recompressed.jpg" width="571" height="428" alt="The same sunset over a wheat field, saved again at lower quality">
+            <span class="edge"><b>05</b> p05_recompressed.jpg</span>
+          </li>
+          </ol>
+        </li>
+        <li class="frame">
+            <img src="../benchmark/data/p12_orig.jpg" width="800" height="600" alt="Pink and orange sunset clouds behind power lines">
+            <span class="edge"><b>06</b> p12_orig.jpg</span>
+          </li>
+      </ol>
+    </div>
+    <figcaption>Frames 3 to 5 are one photo, resized and saved again. The tool puts them in one group. The loop is that group.</figcaption>
+  </figure>
+
+  <div class="command" id="command">
+    <p class="command-label">Run it on your own folder</p>
+    <p class="command-line"><code>find-duplicates photos/</code></p>
+  </div>
+</section>
+
+<section id="result" class="band" aria-labelledby="result-h">
+  <h2 id="result-h">The result</h2>
+  <div class="two">
+    <div class="prose">
+      <p>A folder of photos goes in. An Excel report comes out.</p>
+      <ul>
+        <li>One table per group of look-alikes.</li>
+        <li>Each table lists the files in the group and how alike they are: Exact, Very Similar or Similar.</li>
+        <li>The file to keep is highlighted: the one with the largest file size, then the larger resolution, then the first by name.</li>
+      </ul>
+      <p>Nothing is deleted or moved. The report is advice, and you decide.</p>
+      <p>The alternative is sorting by hand: opening a folder, scrolling, and trusting your eyes and your file names. File names are the weak point, because a resized copy or a re-saved one rarely keeps a name that gives it away.</p>
+    </div>
+    <figure class="sheet">
+      <table>
+        <caption>The report for the group in frames 3 to 5, which also holds a byte-identical copy of frame 3</caption>
+        <thead><tr><th scope="col">File</th><th scope="col">Similarity</th></tr></thead>
+        <tbody>
+          <tr class="keep"><td>p05_identical.jpg</td><td>Very Similar</td></tr>
+          <tr><td>p05_orig.jpg</td><td>Very Similar</td></tr>
+          <tr><td>p05_recompressed.jpg</td><td>Very Similar</td></tr>
+          <tr><td>p05_resized.jpg</td><td>Very Similar</td></tr>
+        </tbody>
+      </table>
+      <figcaption>Output of the tool on those four files, copied as it came out. The highlighted row is the file to keep.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="how-h">
+  <h2 id="how-h">How it works</h2>
+  <ol class="steps">
+    <li><b>Frame 1</b> Read the folder (.jpg, .jpeg and .png; other formats such as .heic are skipped, with a warning that says how many).</li>
+    <li><b>Frame 2</b> Work out what each photo looks like and compare every pair.</li>
+    <li><b>Frame 3</b> Group the photos that look alike. Every photo in a group looks alike to every other photo in it.</li>
+    <li><b>Frame 4</b> Write one table per group, with the file to keep highlighted.</li>
+  </ol>
+  <p class="prose">How alike two photos must be is one setting, <code>--threshold</code>. The default is 8. Very large values lump unrelated photos together.</p>
+</section>
+
+<section id="proof" class="band" aria-labelledby="proof-h">
+  <h2 id="proof-h">Proof</h2>
+  <dl class="proofs">
+    <div>
+      <dt>A planted test set.</dt>
+      <dd>The project builds a folder of photos plus, for each one, an identical copy, a copy resized smaller and a copy saved again at lower quality. On that set the tool found every planted group, and no group mixed unrelated photos. This is a test result for that set, not a promise for other folders.</dd>
+    </div>
+    <div>
+      <dt>A test that goes red on purpose.</dt>
+      <dd>Changing one setting on purpose made every photo land in a single group, and the benchmark test failed. Putting the setting back made it pass.</dd>
+    </div>
+    <div>
+      <dt>A test of the tests.</dt>
+      <dd>Small deliberate changes were made to the program's code, and the tests were run against each one. Almost every change was caught. The few that were not cannot change what the program does.</dd>
+    </div>
+    <div>
+      <dt>One real folder.</dt>
+      <dd>On one folder of the author's own photos, checked by hand, every group was correct and none was incomplete. Details are in the next section.</dd>
+    </div>
+  </dl>
+</section>
+
+<section id="limits" class="band" aria-labelledby="limits-h">
+  <h2 id="limits-h">What it catches and what it misses</h2>
+  <div class="prose">
+    <p>The real-folder run, on 2026-11-13 at the default threshold: of 414 pictures, the tool grouped 89 of them into 41 groups, all correct, and missed 30 pictures that had look-alikes (14 families: 2 triplets and 12 twins). This is one folder of one person's photos, not a promise for yours.</p>
+    <p>In words:</p>
+    <ul>
+      <li><b>It is safe to trust a group.</b> In that run it never mixed unrelated photos and never split a family across groups.</li>
+      <li><b>It does not find everything.</b> About a quarter of the families were not grouped at all. The run did not record why, so this page does not claim a cause.</li>
+      <li><b>It was not built for edited copies.</b> Detecting rotated, cropped or heavily edited duplicates was left out of this term on purpose, so expect a mirrored, turned, bordered or cropped copy to be missed.</li>
+      <li><b>Different shots of one scene are untested.</b> A burst of separate shots of the same place was never tried, so the page makes no claim about it.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="try" class="band" aria-labelledby="try-h">
+  <h2 id="try-h">Try it</h2>
+  <pre class="edge-block" tabindex="0"><code>python -m venv .venv
+.venv\Scripts\python -m pip install -e ".[dev]"
+.venv\Scripts\python -m pytest
+find-duplicates photos/</code></pre>
+  <div class="prose">
+    <p>Tested with Python 3.11.15. The report is written next to the folder as <code>duplicates_&lt;date&gt;_&lt;time&gt;.xlsx</code>. If that exact name already exists, the tool asks before overwriting, and pressing Enter means no.</p>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="built-h">
+  <h2 id="built-h">How it was built</h2>
+  <ul class="prose built">
+    <li>The spec lives under <a href="https://github.com/esst-prog2/Photo-duplicate-finder/tree/main/openspec"><code>openspec/</code></a>.</li>
+    <li>Every decision is one line in <a href="https://github.com/esst-prog2/Photo-duplicate-finder/blob/main/PLANNING_LOG.md"><code>PLANNING_LOG.md</code></a>, with who made the call.</li>
+    <li>Every step is one row in <a href="https://github.com/esst-prog2/Photo-duplicate-finder/blob/main/PROCESS.md"><code>PROCESS.md</code></a>: what was done, what the tool did, and what I decided.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer class="foot">
+  <a href="https://github.com/esst-prog2/Photo-duplicate-finder">Photo-duplicate-finder on GitHub</a>
+</footer>
+
+</body>
+</html>
