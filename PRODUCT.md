@@ -27,6 +27,7 @@ The reader sees the page on GitHub or in a browser, as part of a class project r
 - Test results appear in words, scoped to the test set.
 - Only facts already verified in the repo. Mirrored, turned, bordered or cropped copies are expected to be missed (README "Not this term").
 - Different shots of one scene were never tested, so nothing is claimed about them.
+- The action the page serves: the reader runs the command on their own photos.
 - One page, desktop and phone widths. It links out to the spec, planning log and process log and does not reproduce them.
 
 ## Evidence on Hand
@@ -36,7 +37,7 @@ The reader sees the page on GitHub or in a browser, as part of a class project r
 - Absent: screenshots of the Excel report, testimonials, customer names, and any hosting or domain. Do not invent them.
 
 ## Product Principles
-- Say what it misses as plainly as what it finds.
+- Give the full picture of performance: what it finds, what it misses, and how that was measured.
 - Every statement traces to a test, a commit or a log entry.
 - Lead with the result, then the proof.
 - Promise no count the reader's own folder might not give.
