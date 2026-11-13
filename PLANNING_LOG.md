@@ -131,3 +131,4 @@ tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups PASSED [100%]
 2026-11-13 | README edits (catches-and-misses block, section 2 and 5 fixes) left out for now | decided by: User
 2026-11-13 | The promo page promises no exact counts (no 'N photos in, M groups out'); test results may stay on the page in words, scoped to the test set | decided by: User
 2026-11-13 | The design doc is saved at docs/designs/promo-page-content.md and marked APPROVED; the spec-review loop, web search and second opinion were skipped | decided by: Claude
+2026-11-13 | Real-folder run on the owner's 414 photos (default threshold 8, checked by hand): 41 groups, 89 pictures grouped, no wrong or incomplete group, 14 families (2 triplets, 12 twins, 30 pictures) missed whole. Saved as docs/measurements/real-folder-run-2026-11-13.md as the source for the promo page's catches-and-misses claim; the earlier two-photo table is not used | decided by: Claude
