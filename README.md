@@ -106,6 +106,8 @@ To set up:
 
 The specs under `openspec/` are managed with the OpenSpec command line tool,
 which is not a Python package: `npm install -g @fission-ai/openspec@1.13.0`
-(tested with Node 20.14.0; npm warns that one of its own dependencies prefers
-20.17 or newer, and it works anyway).
+(installed with Node 20.14.0, where npm warned that one of its own
+dependencies prefers 20.17 or newer, and it worked anyway; that installed
+version also runs on Node 26.12.1, but the install command itself was not
+repeated on 26.12.1).
 
