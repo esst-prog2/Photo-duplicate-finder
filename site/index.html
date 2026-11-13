@@ -67,7 +67,7 @@
   </figure>
 
   <div class="command" id="command">
-    <p class="command-label">Run it on your own folder</p>
+    <p class="command-label">Once it's set up (see Try it), run it on your own folder</p>
     <p class="command-line"><code>find-duplicates photos/</code></p>
   </div>
 </section>
@@ -150,11 +150,13 @@
 
 <section id="try" class="band" aria-labelledby="try-h">
   <h2 id="try-h">Try it</h2>
-  <pre class="edge-block" tabindex="0"><code>python -m venv .venv
+  <pre class="edge-block" tabindex="0"><code>git clone https://github.com/esst-prog2/Photo-duplicate-finder.git
+cd Photo-duplicate-finder
+python -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
-.venv\Scripts\python -m pytest
-find-duplicates photos/</code></pre>
+.venv\Scripts\find-duplicates C:\path\to\your\photos</code></pre>
   <div class="prose">
+    <p>Replace <code>C:\path\to\your\photos</code> with a folder of your own. Running the tests is optional: <code>.venv\Scripts\python -m pytest</code>.</p>
     <p>Tested with Python 3.11.15. The report is written next to the folder as <code>duplicates_&lt;date&gt;_&lt;time&gt;.xlsx</code>. If that exact name already exists, the tool asks before overwriting, and pressing Enter means no.</p>
   </div>
 </section>

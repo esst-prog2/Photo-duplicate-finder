@@ -46,11 +46,14 @@ In words:
 ## Try it
 
 ```
+git clone https://github.com/esst-prog2/Photo-duplicate-finder.git
+cd Photo-duplicate-finder
 python -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
-.venv\Scripts\python -m pytest
-find-duplicates photos/
+.venv\Scripts\find-duplicates C:\path\to\your\photos
 ```
+
+Replace `C:\path\to\your\photos` with a folder of your own. Running the tests is optional: `.venv\Scripts\python -m pytest`.
 
 Tested with Python 3.11.15. The report is written next to the folder as `duplicates_<date>_<time>.xlsx`. If that exact name already exists, the tool asks before overwriting, and pressing Enter means no.
 

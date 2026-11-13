@@ -154,3 +154,5 @@ tests/test_benchmark.py::test_benchmark_has_no_contaminated_groups PASSED [100%]
 2026-11-13 | Critique of the promo page as a classmate (20/32, two P1 issues): fix the Try it steps and add the one-folder scope to the lede; Try it wording to be shown to the user before it is changed | decided by: User
 2026-11-13 | Lede of the promo page now ends with: The "about three quarters" was measured on one folder of the author's own photos, not promised for yours (words only, no figures), changed in docs/promo-page.md and site/index.html | decided by: User
 2026-11-13 | The exact wording of that lede sentence | decided by: Claude
+2026-11-13 | Try it section approved and applied: git clone and cd added, the tests made optional, the command now runs through .venv\Scripts\find-duplicates on C:\path\to\your\photos with a line saying to replace the path; the hero label now reads Once it's set up (see Try it), run it on your own folder | decided by: User
+2026-11-13 | The new Try it text was not run from a fresh clone on this machine; only the existing venv's find-duplicates and the repo URL were checked | decided by: Claude
