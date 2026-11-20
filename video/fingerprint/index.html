@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <script src="data.js"></script>
+    <style>
+      :root {
+        --ground: #e9eef2;
+        --film: #0e0e0e;
+        --ink: #14181c;
+        --soft: #3b4650;
+        --amber: #f2a900;
+        --pencil: #d9342b;
+        --display: "Barlow Condensed", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 1920px; height: 1080px; background: var(--ground); font-family: var(--display); color: var(--ink); }
+      .scene { position: absolute; left: 0; top: 0; width: 1920px; height: 1010px; }
+      .abs { position: absolute; }
+
+      .cap {
+        position: absolute; left: 0; width: 1920px; top: 890px; text-align: center;
+        font-family: var(--display); font-weight: 700; font-size: 78px; line-height: 1; letter-spacing: -0.005em; color: var(--ink);
+      }
+      .cap .step { font-family: var(--mono); font-weight: 700; font-size: 40px; color: #a8261f; letter-spacing: 0; margin-right: 22px; vertical-align: 8px; }
+      #foot {
+        position: absolute; left: 0; width: 1920px; top: 1010px; height: 70px; background: var(--film); color: var(--amber);
+        font-family: var(--mono); font-size: 28px; line-height: 70px; text-align: center;
+      }
+
+      .photo { position: absolute; background: var(--film); padding: 12px; }
+      .photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .label { position: absolute; font-family: var(--mono); font-weight: 700; font-size: 30px; color: var(--ink); white-space: nowrap; }
+      .tag { position: absolute; font-family: var(--mono); font-size: 28px; color: var(--soft); white-space: nowrap; }
+
+      .grid { position: absolute; background: var(--film); }
+      .bit { position: absolute; }
+      .bit.on { background: #ffffff; }
+      .bit.off { background: #0e0e0e; }
+      .bit.diff { outline: 6px solid var(--pencil); outline-offset: -3px; z-index: 2; }
+
+      #tiny { position: absolute; image-rendering: pixelated; background: var(--film); }
+
+      .arrow { position: absolute; font-family: var(--display); font-weight: 700; font-size: 150px; color: var(--ink); line-height: 1; }
+
+      .count { position: absolute; width: 520px; text-align: center; font-family: var(--mono); font-weight: 700; font-size: 220px; line-height: 1; color: var(--ink); }
+      .countlabel { position: absolute; width: 520px; text-align: center; font-family: var(--display); font-weight: 700; font-size: 54px; line-height: 1; color: var(--soft); }
+      .chip { position: absolute; width: 520px; text-align: center; font-family: var(--mono); font-weight: 700; font-size: 38px; padding: 18px 0; background: var(--film); color: var(--amber); }
+      .chip.apart { background: var(--ground); color: var(--ink); border: 5px dashed var(--ink); padding: 13px 0; }
+      .loop { position: absolute; border: 9px solid var(--pencil); border-radius: 70px 96px 84px 110px / 96px 72px 108px 84px; transform: rotate(-0.4deg); }
+
+      .brand { position: absolute; left: 0; width: 1920px; text-align: center; font-family: var(--display); font-weight: 700; font-size: 170px; line-height: 1; }
+      .brandsub { position: absolute; left: 0; width: 1920px; text-align: center; font-family: var(--display); font-weight: 600; font-size: 66px; line-height: 1.15; color: var(--soft); }
+      .cmd { position: absolute; left: 560px; width: 800px; text-align: center; background: var(--film); color: var(--amber); font-family: var(--mono); font-weight: 700; font-size: 52px; padding: 26px 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1920" data-height="1080">
+
+      <!-- scene 1: the question -->
+      <div id="s1" class="scene clip" data-start="0" data-duration="3.5" data-track-index="0"></div>
+      <div id="c1" class="cap clip" data-start="0" data-duration="3.5" data-track-index="1">Same picture, three files. How does the tool know?</div>
+
+      <!-- scene 2: shrink -->
+      <div id="s2" class="scene clip" data-start="3.5" data-duration="4.5" data-track-index="0"></div>
+      <div id="c2" class="cap clip" data-start="3.5" data-duration="4.5" data-track-index="1"><span class="step">STEP 1</span>Shrink it to a tiny grey picture</div>
+
+      <!-- scene 3: the 49 squares -->
+      <div id="s3" class="scene clip" data-start="8" data-duration="4" data-track-index="0"></div>
+      <div id="c3" class="cap clip" data-start="8" data-duration="4" data-track-index="1"><span class="step">STEP 2</span>Keep its overall pattern: 49 black-or-white squares</div>
+
+      <!-- scene 4a / 4b: copies -->
+      <div id="s4a" class="scene clip" data-start="12" data-duration="3.5" data-track-index="0"></div>
+      <div id="c4a" class="cap clip" data-start="12" data-duration="3.5" data-track-index="1"><span class="step">STEP 3</span>Count the squares that differ</div>
+      <div id="s4b" class="scene clip" data-start="15.5" data-duration="2.5" data-track-index="0"></div>
+      <div id="c4b" class="cap clip" data-start="15.5" data-duration="2.5" data-track-index="1">Saved again at lower quality: still just 2</div>
+
+      <!-- scene 5: different photo -->
+      <div id="s5" class="scene clip" data-start="18" data-duration="4.5" data-track-index="0"></div>
+      <div id="c5" class="cap clip" data-start="18" data-duration="4.5" data-track-index="1">A different photo: 16 squares differ</div>
+
+      <!-- scene 6: mirrored -->
+      <div id="s6" class="scene clip" data-start="22.5" data-duration="4.5" data-track-index="0"></div>
+      <div id="c6" class="cap clip" data-start="22.5" data-duration="4.5" data-track-index="1">A mirrored copy: 20 differ. The tool misses it.</div>
+
+      <!-- scene 7: end -->
+      <div id="s7" class="scene clip" data-start="27" data-duration="3" data-track-index="0" style="height:1080px"></div>
+
+      <div id="foot" class="clip" data-start="0" data-duration="27" data-track-index="2">Numbers from the program's own code, on its benchmark photos. The mirrored picture is a test edit.</div>
+    </div>
+
+    <script>
+      const D = window.FP;
+      const F = D.files;
+      const mk = (parent, cls, css, html) => {
+        const e = document.createElement("div");
+        if (cls) e.className = cls;
+        if (css) Object.assign(e.style, css);
+        if (html !== undefined) e.innerHTML = html;
+        parent.appendChild(e);
+        return e;
+      };
+      const px = (n) => n + "px";
+      const photo = (parent, key, x, y, w, h) => {
+        const p = mk(parent, "photo", { left: px(x), top: px(y), width: px(w), height: px(h) });
+        const img = document.createElement("img");
+        img.src = "assets/" + F[key].image;
+        p.appendChild(img);
+        return p;
+      };
+      const grid = (parent, bits, x, y, cell, gap, diffCells) => {
+        const n = 7;
+        const size = n * cell + (n - 1) * gap + 2 * gap;
+        const g = mk(parent, "grid", { left: px(x), top: px(y), width: px(size), height: px(size) });
+        const cells = [];
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const e = mk(g, "bit " + (bits[r][c] ? "on" : "off"), {
+              left: px(gap + c * (cell + gap)), top: px(gap + r * (cell + gap)), width: px(cell), height: px(cell),
+            });
+            if (diffCells && diffCells[r][c]) e.classList.add("diff");
+            cells.push(e);
+          }
+        }
+        return { el: g, cells, size };
+      };
+      const diffOf = (a, b) => a.map((row, r) => row.map((v, c) => v !== b[r][c]));
+
+      const tl = gsap.timeline({ paused: true });
+      const rise = (target, at, dur = 0.55, from = { opacity: 0, y: 30 }) =>
+        tl.fromTo(target, from, { opacity: 1, x: 0, y: 0, duration: dur, ease: "power3.out" }, at);
+
+      // ---------- scene 1: three files of one picture
+      const s1 = document.getElementById("s1");
+      const a1 = photo(s1, "orig", 200, 150, 640, 480);
+      const b1 = photo(s1, "resized", 1010, 100, 460, 345);
+      const c1 = photo(s1, "recompressed", 1010, 480, 460, 345);
+      const l1a = mk(s1, "label", { left: px(200), top: px(650) }, F.orig.name);
+      const l1b = mk(s1, "tag", { left: px(1495), top: px(255) }, "saved smaller");
+      const l1c = mk(s1, "tag", { left: px(1495), top: px(620) }, "saved again,<br>lower quality");
+      rise(a1, 0.1); rise(l1a, 0.2);
+      rise(b1, 0.9, 0.6, { opacity: 0, x: 120 }); rise(c1, 1.3, 0.6, { opacity: 0, x: 120 });
+      rise(l1b, 1.4); rise(l1c, 1.8);
+      rise("#c1", 0.2, 0.6);
+
+      // ---------- scene 2: shrink to 28 x 28 grey
+      const s2 = document.getElementById("s2");
+      const a2 = photo(s2, "orig", 200, 160, 760, 570);
+      mk(s2, "label", { left: px(200), top: px(745) }, "the photo");
+      mk(s2, "arrow", { left: px(985), top: px(300) }, "&rarr;");
+      const tiny = document.createElement("canvas");
+      tiny.id = "tiny"; tiny.width = 28; tiny.height = 28;
+      tiny.style.left = px(1180); tiny.style.top = px(130); tiny.style.width = px(570); tiny.style.height = px(570);
+      tiny.style.padding = "0";
+      s2.appendChild(tiny);
+      const ctx = tiny.getContext("2d");
+      const img28 = ctx.createImageData(28, 28);
+      for (let r = 0; r < 28; r++) for (let c = 0; c < 28; c++) {
+        const v = F.orig.thumb[r][c]; const i = (r * 28 + c) * 4;
+        img28.data[i] = v; img28.data[i + 1] = v; img28.data[i + 2] = v; img28.data[i + 3] = 255;
+      }
+      ctx.putImageData(img28, 0, 0);
+      mk(s2, "label", { left: px(1180), top: px(715) }, "28 &times; 28 grey squares");
+      rise(a2, 3.6); rise("#c2", 3.7, 0.5);
+      tl.fromTo("#tiny", { opacity: 0, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 1.6, ease: "power2.inOut" }, 4.4);
+      tl.fromTo(s2.querySelector(".arrow"), { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 4.2);
+
+      // ---------- scene 3: 49 squares
+      const s3 = document.getElementById("s3");
+      const tiny3 = document.createElement("canvas");
+      tiny3.width = 28; tiny3.height = 28;
+      tiny3.getContext("2d").putImageData(img28, 0, 0);
+      Object.assign(tiny3.style, { position: "absolute", left: px(190), top: px(190), width: px(420), height: px(420), imageRendering: "pixelated", background: "var(--film)" });
+      s3.appendChild(tiny3);
+      mk(s3, "label", { left: px(190), top: px(630) }, "tiny grey picture");
+      mk(s3, "arrow", { left: px(650), top: px(300) }, "&rarr;");
+      const g3 = grid(s3, F.orig.bits, 1010, 110, 80, 6);
+      mk(s3, "label", { left: px(1010), top: px(110 + g3.size + 18) }, "49 squares of the pattern");
+      rise(tiny3, 8.1); rise(s3.querySelector(".label"), 8.2); rise(s3.querySelector(".arrow"), 8.5, 0.5, { opacity: 0, x: -30 });
+      rise("#c3", 8.2, 0.5);
+      g3.cells.forEach((cell, i) => {
+        const target = cell.classList.contains("on") ? "#ffffff" : "#0e0e0e";
+        tl.fromTo(cell, { backgroundColor: "#7a8791", opacity: 0 }, { backgroundColor: target, opacity: 1, duration: 0.35, ease: "power2.out" }, 8.9 + i * 0.045);
+      });
+
+      // ---------- compare scenes
+      function compare(sceneId, key, t0, opts) {
+        const s = document.getElementById(sceneId);
+        const diff = diffOf(F.orig.bits, F[key].bits);
+        const n = diff.flat().filter(Boolean).length;
+        const cell = 40, gap = 4;
+        const pl = photo(s, "orig", 150, 60, 440, 330);
+        mk(s, "label", { left: px(150), top: px(398) }, F.orig.name);
+        const gl = grid(s, F.orig.bits, 150, 450, cell, gap, diff);
+        const pr = photo(s, key, 1330, 60, 440, 330);
+        mk(s, "label", { left: px(1330), top: px(398) }, F[key].name);
+        const gr = grid(s, F[key].bits, 1330, 450, cell, gap, diff);
+        const num = mk(s, "count", { left: px(700), top: px(110) }, "0");
+        mk(s, "countlabel", { left: px(700), top: px(345) }, "squares differ");
+        const chip = mk(s, "chip" + (opts.apart ? " apart" : ""), { left: px(700), top: px(500) }, opts.chip);
+        let loop = null;
+        if (!opts.apart) {
+          loop = mk(s, "loop", { left: px(100), top: px(14), width: px(1720), height: px(800) });
+        }
+        if (opts.note) mk(s, "tag", { left: px(1330), top: px(450 + gl.size + 12), color: "var(--pencil)" }, opts.note);
+        return { s, pl, pr, gl, gr, num, chip, loop, n, t0 };
+      }
+      function animateCompare(c, withPhotos = true) {
+        const t0 = c.t0;
+        if (withPhotos) { rise(c.pl, t0 + 0.05, 0.5); rise(c.pr, t0 + 0.15, 0.5, { opacity: 0, x: 80 }); }
+        rise(c.gl.el, t0 + 0.4, 0.5); rise(c.gr.el, t0 + 0.5, 0.5, { opacity: 0, x: 80 });
+        const counter = { v: 0 };
+        tl.to(counter, { v: c.n, duration: 1.1, ease: "none", snap: { v: 1 }, onUpdate: () => { c.num.textContent = String(counter.v); } }, t0 + 1.0);
+        tl.fromTo(c.chip, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, t0 + 1.9);
+        if (c.loop) tl.fromTo(c.loop, { opacity: 0.0, rotate: -2.2, scale: 1.03 }, { opacity: 1, rotate: -0.4, scale: 1, duration: 0.9, ease: "expo.out" }, t0 + 2.0);
+      }
+
+      const c4a = compare("s4a", "resized", 12, { chip: "GROUPED TOGETHER" });
+      animateCompare(c4a);
+      rise("#c4a", 12.1, 0.5);
+
+      const c4b = compare("s4b", "recompressed", 15.5, { chip: "GROUPED TOGETHER" });
+      // the second copy appears at once: counter and chip already settled
+      c4b.num.textContent = String(c4b.n);
+      rise("#c4b", 15.6, 0.5);
+      rise(c4b.pr, 15.55, 0.5, { opacity: 0, x: 80 });
+      rise(c4b.gr.el, 15.6, 0.5, { opacity: 0, x: 80 });
+
+      const c5 = compare("s5", "other", 18, { chip: "KEPT APART", apart: true });
+      animateCompare(c5);
+      rise("#c5", 18.1, 0.5);
+
+      const c6 = compare("s6", "mirrored", 22.5, { chip: "KEPT APART: A MISS", apart: true, note: "test edit of p05_orig.jpg" });
+      animateCompare(c6);
+      rise("#c6", 22.6, 0.5);
+
+      // ---------- scene 7: end card
+      const s7 = document.getElementById("s7");
+      mk(s7, "brand", { top: px(250) }, "Photo Duplicate Finder");
+      mk(s7, "brandsub", { top: px(470) }, "Few squares differ: grouped together.<br>Many differ: kept apart.");
+      mk(s7, "cmd", { top: px(740) }, "find-duplicates photos/");
+      tl.fromTo(s7.children, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.15 }, 27.1);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

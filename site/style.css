@@ -341,3 +341,8 @@ h2, h3 { text-wrap: balance; }
 @media (min-width: 1248px) {
   .limits { padding-inline: calc((100vw - 78rem) / 2 + var(--gutter)); }
 }
+
+/* how-it-decides video */
+.how-video { margin: 28px 0 0; max-width: 56rem; }
+.how-video video { display: block; width: 100%; height: auto; background: var(--film); }
+.how-video figcaption { margin-top: 8px; font-size: 1rem; color: var(--ink-soft); max-width: var(--measure); }
