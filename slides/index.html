@@ -68,6 +68,21 @@
   .callout p { margin: 0.4em 0 0; }
   .zoom { width: 589px; height: 87px; background: url(screenshot1.png) no-repeat 0 -115px / 589px auto; border: 4px solid var(--film); }
   .callout code { font-family: "JetBrains Mono", monospace; font-size: 0.9em; }
+  .check { display: grid; grid-template-columns: 1fr 60px 1.25fr; gap: 0.6em; align-items: stretch; }
+  .check h3, .catch h3 {
+    font-family: "JetBrains Mono", monospace; font-size: 0.55em; font-weight: 700;
+    color: var(--pencil-text); text-transform: none; letter-spacing: 0; margin: 0 0 0.5em; line-height: 1.3;
+  }
+  .said, .checked { padding: 0.6em 0.8em; font-size: 0.85em; }
+  .said { background: #ffffff; }
+  .checked { background: var(--film); color: var(--box); }
+  .checked h3 { color: var(--amber); }
+  .checked b { color: var(--amber); }
+  .said p, .checked p { margin: 0 0 0.4em; }
+  .arrow { align-self: center; text-align: center; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 1.8em; }
+  .catch { margin-top: 0.9em; font-size: 0.75em; max-width: 880px; }
+  .catch p { margin: 0 0 0.4em; }
+  .catch .quote { font-style: italic; }
   .reveal .slides section.closing { text-align: center; padding-top: 220px; }
   .closing h2 { border-top: 0; padding-top: 0; }
   .repo-link {
@@ -119,6 +134,23 @@
 
     <section>
       <h2>Why it works: a check that shows I was in control</h2>
+      <div class="check">
+        <div class="said">
+          <h3>The tool said</h3>
+          <p>414 photos in, <b>41 groups</b>, 89 photos grouped.</p>
+        </div>
+        <div class="arrow" aria-hidden="true">&rarr;</div>
+        <div class="checked">
+          <h3>I checked it by hand against the folder</h3>
+          <p>All 41 groups correct, none split.</p>
+          <p>It missed <b>30 photos</b>: 14 families, 2 triplets and 12 twins.</p>
+        </div>
+      </div>
+      <div class="catch">
+        <h3>Before that, I caught the claim</h3>
+        <p class="quote">&ldquo;Does the README say right now that the tool would catch all similar pictures? Cause this is not the case.&rdquo;</p>
+        <p>It never said &ldquo;all&rdquo;, but it never said what the tool misses either. So I measured the misses, and the page now states them.</p>
+      </div>
       <span class="count">3 / 5</span>
     </section>
 
