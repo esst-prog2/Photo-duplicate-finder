@@ -83,6 +83,22 @@
   .catch { margin-top: 0.9em; font-size: 0.75em; max-width: 880px; }
   .catch p { margin: 0 0 0.4em; }
   .catch .quote { font-style: italic; }
+  .reveal .lesson { font-size: 0.85em; font-weight: 700; margin-bottom: 0.6em; max-width: 900px; }
+  .switch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6em; font-size: 0.66em; }
+  .switch > div { padding: 0.6em 0.75em; }
+  .switch h3 {
+    font-family: "JetBrains Mono", monospace; font-size: 0.75em; font-weight: 700;
+    text-transform: none; letter-spacing: 0; margin: 0 0 0.5em; line-height: 1.3;
+  }
+  .switch p { margin: 0 0 0.45em; line-height: 1.35; }
+  .before { background: #ffffff; }
+  .before h3 { color: var(--pencil-text); }
+  .turn { background: var(--box); outline: 4px solid var(--pencil); outline-offset: -4px; }
+  .turn h3 { color: var(--pencil-text); }
+  .after { background: var(--film); color: var(--box); }
+  .after h3, .after b { color: var(--amber); }
+  .reveal .felt { margin: 0.55em 0 0.3em; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 1.15em; }
+  .reveal .footnote { font-size: 0.48em; color: var(--ink-soft); max-width: 760px; margin: 0; }
   .reveal .slides section.closing { text-align: center; padding-top: 220px; }
   .closing h2 { border-top: 0; padding-top: 0; }
   .repo-link {
@@ -156,6 +172,25 @@
 
     <section>
       <h2>What I learned</h2>
+      <p class="lesson">There is more than one way to fingerprint a photo, and the first one I tried was not the right one.</p>
+      <div class="switch">
+        <div class="before">
+          <h3>1 Oct &middot; average hash</h3>
+          <p>Even at the strictest setting, <b>8 of 32 groups</b> held a photo that did not belong.</p>
+          <p>It grouped photos that only shared a vague colour scheme.</p>
+        </div>
+        <div class="turn">
+          <h3>3 Oct &middot; the switch</h3>
+          <p>I tried <b>phash</b> instead, and tuned its size (49 bits) and threshold (8) by hand on my own photos.</p>
+        </div>
+        <div class="after">
+          <h3>After</h3>
+          <p>Planted test set: <b>20 of 20</b> groups found, none mixed.</p>
+          <p>My 414 photos: all <b>41 groups</b> correct.</p>
+        </div>
+      </div>
+      <p class="felt">From here on, the project felt doable.</p>
+      <p class="footnote">The same week, the grouping also changed, so a chain of look-alikes can no longer pull unrelated photos into one group.</p>
       <span class="count">4 / 5</span>
     </section>
 
