@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Duplicate Finder: five slides, five minutes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/theme/white.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --film: #0e0e0e;
+    --box: #e9eef2;
+    --ink: #14181c;
+    --ink-soft: #3b4650;
+    --pencil: #d9342b;
+    --pencil-text: #a8261f;
+    --amber: #f2a900;
+    --r-background-color: var(--box);
+    --r-main-color: var(--ink);
+    --r-heading-color: var(--ink);
+    --r-main-font: "Atkinson Hyperlegible", "Segoe UI", sans-serif;
+    --r-main-font-size: 34px;
+    --r-heading-font: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --r-heading-font-weight: 700;
+    --r-heading-text-transform: none;
+    --r-heading-letter-spacing: -0.01em;
+    --r-heading1-size: 2.6em;
+    --r-heading2-size: 1.9em;
+    --r-link-color: var(--pencil-text);
+    --r-link-color-hover: var(--ink);
+    --r-selection-background-color: var(--film);
+    --r-selection-color: var(--amber);
+  }
+  .reveal .slides { text-align: left; }
+  .reveal .slides section { height: 100%; }
+  .reveal h2 { margin: 0 0 0.7em; padding-top: 0.3em; border-top: 6px solid var(--film); }
+  .reveal p { margin: 0 0 0.8em; line-height: 1.35; }
+  .count {
+    position: absolute; right: 0; bottom: 0;
+    font-family: "JetBrains Mono", monospace; font-size: 0.55em; color: var(--ink-soft);
+  }
+  .who-why { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4em; }
+  .who-why h3 {
+    font-family: "JetBrains Mono", monospace; font-size: 0.6em; font-weight: 700;
+    color: var(--pencil-text); text-transform: none; letter-spacing: 0; margin: 0 0 0.4em;
+  }
+  .who-why p { font-size: 0.9em; }
+  .promise {
+    margin-top: 1.1em; padding: 0.55em 0.8em; background: var(--film); color: var(--box);
+    font-size: 0.85em; line-height: 1.35;
+  }
+  .promise b { color: var(--amber); }
+  .reveal .slides section.closing { text-align: center; padding-top: 220px; }
+  .closing h2 { border-top: 0; padding-top: 0; }
+  .repo-link {
+    display: inline-block; margin-top: 0.4em; padding: 0.5em 0.9em; background: var(--film);
+    font-family: "JetBrains Mono", monospace; font-size: 0.75em;
+  }
+  .reveal .repo-link a { color: var(--amber); text-decoration: none; }
+  .reveal .repo-link a:hover { text-decoration: underline; }
+  .reveal .controls { color: var(--film); }
+  .reveal .progress { color: var(--pencil); }
+</style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section>
+      <h2>For whom, and why</h2>
+      <div class="who-why">
+        <div>
+          <h3>For whom</h3>
+          <p>Anyone who wants to sort a photo folder that grew on its own: phone backups, family archives, a shared album that everyone added to.</p>
+        </div>
+        <div>
+          <h3>Why</h3>
+          <p>Copies pile up without anyone meaning to. A photo gets resized, saved again, sent and saved back, and the file names stop matching. Sorting by hand means opening and comparing the pictures one by one.</p>
+        </div>
+      </div>
+      <p class="promise">Photo Duplicate Finder compares <b>what the pictures look like</b>, not their names, and lists the look-alikes in one Excel report, with the best copy highlighted. Nothing is deleted.</p>
+      <span class="count">1 / 5</span>
+    </section>
+
+    <section>
+      <h2>The demo: the program, from a real run</h2>
+      <span class="count">2 / 5</span>
+    </section>
+
+    <section>
+      <h2>Why it works: a check that shows I was in control</h2>
+      <span class="count">3 / 5</span>
+    </section>
+
+    <section>
+      <h2>What I learned</h2>
+      <span class="count">4 / 5</span>
+    </section>
+
+    <section>
+      <h2>What's next</h2>
+      <span class="count">5 / 5</span>
+    </section>
+
+    <section class="closing">
+      <h2>The repository</h2>
+      <p class="repo-link"><a href="https://github.com/esst-prog2/Photo-duplicate-finder">github.com/esst-prog2/Photo-duplicate-finder</a></p>
+    </section>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({ hash: true, controls: true, progress: true, center: false, transition: "slide" });
+</script>
+</body>
+</html>
